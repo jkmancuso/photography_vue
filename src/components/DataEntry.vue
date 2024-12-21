@@ -1,29 +1,82 @@
 <script setup>
 import { ref } from 'vue'
 
+const status = ref()
+const returnedJSON = ref()
+const jobs = ref([])
+const orders = ref([])
+const selectedJobId = ref()
+const selectedRecordNum = ref(1)
+const fname = ref("")
+
+// on fresh page load
+if (!jobs.value.length){
+    fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs')
+    .then( response => response.json())
+    .then(data=> {jobs.value = data})
+
+}    
+
+if (!orders.value.length && selectedJobId.value){
+    getOrdersFromDB()
+}
+
+//treat the orders ref like a ro cache and call this func when the DB is updated
+async function getOrdersFromDB(){ 
+    fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
+        selectedJobId.value +'/orders')
+    .then( response => response.json())
+    .then(data=> {console.log(data);orders.value=data})
+}
+
+function fillInForm(){
+    let order = orders.value[selectedRecordNum.value-1]
+    fname.value=order.fname 
+}
+
+function checkPostStatus(response){
+
+    status.value = response.status
+    if ( status.value == "200") {
+        document.getElementById("MainForm").reset();
+    }
+
+    returnedJSON.value = response.json()
+    return returnedJSON.value
+}
+
 
 async function postOrder(){
-    fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
-        method: "post",
-        headers: {
-         'Accept': 'application/json',
-         'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            fname: document.getElementById('fname').value,
+
+    let NextRecordNum = Number(document.getElementById('record_num').value) + 1
+    let json = {
+            fname: fname.value,
             lname: document.getElementById('lname').value,
             job_id: document.getElementById('job_id').value,
-            record_num: 1,
+            record_num: NextRecordNum,
             address: document.getElementById('address').value,
             city: document.getElementById('city').value,
             state: document.getElementById('state').value,
             phone_num: document.getElementById('phone_num').value,
             check_num: Number(document.getElementById('check_num').value),
             amount: Number(document.getElementById('amount').value)
-        })
+        }
 
-    }).then( response => {return response.json()})
+    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
+        method: "post",
+        headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json)
+
+    }).then( response => checkPostStatus(response))
     .then(data=> console.log(data))
+    .then(orders.value.push(json))
+    .then(selectedRecordNum.value=NextRecordNum) 
+    //update the local order var instead of going to eventually consistent DynamoDB
+    //GSI doesnt support consistent read (ie "read after write")
+    //otherwise we would have to call getOrdersFromDB with a gross 2s sleep timer added
 }
 </script>
 
@@ -31,13 +84,17 @@ async function postOrder(){
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
 <br>
-
-
+{{ orders }}
+<div class="success" v-if="status == 200">Order saved!</div>
+<div class="error" v-else-if="status >= 400">Record was not saved! {{ returnedJSON }}</div>
+<br>
 <div class="container-main">
     <div>Job Name</div>
     <div>
-        <select class="purple" id="job_id">
-        <option value="0193bbb8-8d57-79d0-8cfc-1d4d65f8e9b2">test job</option>
+        <select class="purple" id="job_id" v-model="selectedJobId" @change="getOrdersFromDB">
+        <option
+            v-for="job in jobs"
+            v-bind:value="job.id" > {{  job.job_name }}</option>
         </select>
     </div>
     <div></div>
@@ -45,16 +102,21 @@ async function postOrder(){
 
     <div>Year</div>
     <div><input class="purple" type="text" size='4' maxlength='4' id="year"></div>
-    <div>Record # <select></select> of</div>
+    <div>Record # 
+        <select id="record_num" v-model="selectedRecordNum" @change="fillInForm">
+            <option 
+            v-for="order in orders"
+            v-bind:value="order.record_num" >{{ order.record_num }}</option>
+        </select> of {{ orders.length }}</div>
     <div></div>
 </div>
-
+<form id="MainForm" @submit.prevent>
 <br>
 <div class="small-bold-italics">Student Information</div>
 <br>
 <div class="container-student">
     <div>First Name</div>
-    <div><input type="text" id="fname"></div>
+    <div><input type="text" id="fname" v-model="fname"></div>
     <div>Last Name</div>
     <div><input type="text" id="lname"><button>Find</button></div>
     <div></div>
@@ -251,7 +313,7 @@ async function postOrder(){
   <div></div>
 </div>
 
-
+</form>
 </template>
 
 
@@ -283,6 +345,18 @@ body{
 
 .red{
   color: red;
+}
+
+.error{
+  color: red;
+  font-weight: bold;
+  font-size: large
+}
+
+.success{
+  color: blue;
+  font-weight: bold;
+  font-size: large
 }
 
 .container-group {
