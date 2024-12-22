@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
+import states from '../states.json'
+
 const status = ref()
 const returnedJSON = ref()
 const jobs = ref([])
@@ -12,49 +14,47 @@ const [Group,GroupQuantity,GroupPictureNum,CheckNum,PaymentMethod,NumberPictures
 
 // on fresh page load
 if (!jobs.value.length){
-    fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs')
+  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs')
     .then( response => response.json())
-    .then(data=> {jobs.value = data})
+    .then(data=> jobs.value = data)
 }    
 
+//important function- it's called when user selects the job, it pulls all the orders
 //treat the orders ref like a ro cache and call this func when the DB is updated
 async function getOrdersFromDB(){ 
-    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
-        JobId.value +'/orders')
-    .then(response => response.json())
-    .then(data => {orders.value=data;return orders;})
-    .then(orders => RecordNum.value=orders.value.length)
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
+      JobId.value +'/orders')
+      .then(response => response.json())
+      .then(data => {orders.value=data;return orders;})
+      .then(orders => RecordNum.value=orders.value.length)
   
-    console.log("ORDERS" + orders.value[0].id)
-    if (RecordNum.value >0) {
-      fillInForm()      
-    } else{
-      RecordNum.value = 1
-    }
-    
+  getYear()
+  
+  if (RecordNum.value >0) {
+    fillInForm()      
+  } else{
+    RecordNum.value = 1
+  }
 
 }
 
 function fillInForm(){
-  console.log("Record number: "+RecordNum.value)
-    let order = orders.value[RecordNum.value-1]
-  
-    //left side are the v-model variable names
-    //right side are the api json field names
-    Fname.value=order.fname
-    Lname.value=order.lname
-    Address.value=order.address
-    City.value=order.city
-    State.value=order.state
-    Zip.value=order.zip
-    PhoneNum.value=order.phone_num
-    Group.value=order.group
-    GroupQuantity.value=order.group_quantity
-    GroupPictureNum.value=order.group_picture_num
-    CheckNum.value=order.check_num
-    Amount.value=order.value
-    PaymentMethod.value=order.payment_method
-    Year.value=order.job_year
+  let order = orders.value[RecordNum.value-1]
+  //left side are the v-model variable names
+  //right side are the api json field names
+  Fname.value=order.fname
+  Lname.value=order.lname
+  Address.value=order.address
+  City.value=order.city
+  State.value=order.state
+  Zip.value=order.zip
+  PhoneNum.value=order.phone_num
+  Group.value=order.group
+  GroupQuantity.value=order.group_quantity
+  GroupPictureNum.value=order.group_picture_num
+  CheckNum.value=order.check_num
+  Amount.value=order.value
+  PaymentMethod.value=order.payment_method
 }
 
 /*function checkPostStatus(response){
@@ -84,40 +84,48 @@ function resetForm(){
   PhoneNum.value=''
   GroupQuantity.value=''
   Group.value=''
-  GroupPictureNum=''
+  GroupPictureNum.value=''
 }
 
+function getYear(){
+
+  for (let num in jobs.value){
+    if (jobs.value[num].id == JobId.value){
+      Year.value = jobs.value[num].job_year
+      return
+    }
+  }
+}
 async function postOrder(){
 
-    let json = {
-            fname: Fname.value,
-            lname: Lname.value,
-            job_id: JobId.value,
-            record_num: Number(RecordNum.value),
-            address: Address.value,
-            city: City.value,
-            state: State.value,
-            phone_num: PhoneNum.value,
-            zip: Zip.value,
-            group: Group.value,
-            group_quantity: Number(GroupQuantity.value),
-            group_picture_num: GroupPictureNum.value,
-            check_num: Number(CheckNum.value),
-            group_quantity:Number(GroupQuantity.value),
-            amount: Number(Amount.value),
-            payment_method: PaymentMethod.value
-        }
+  let json = {
+        fname: Fname.value,
+        lname: Lname.value,
+        job_id: JobId.value,
+        record_num: Number(RecordNum.value),
+        address: Address.value,
+        city: City.value,
+        state: State.value,
+        phone_num: PhoneNum.value,
+        zip: Zip.value,
+        group: Group.value,
+        group_quantity: Number(GroupQuantity.value),
+        group_picture_num: GroupPictureNum.value,
+        check_num: Number(CheckNum.value),
+        group_quantity:Number(GroupQuantity.value),
+        amount: Number(Amount.value),
+        payment_method: PaymentMethod.value
+    }
 
-    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
-        method: "post",
-        headers: {
-         'Accept': 'application/json',
-         'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(json)
-
-    }).then( response => response.json())
-    .then(json => returnedJSON.value = json)
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
+    method: "post",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(json)})
+      .then( response => response.json())
+      .then(json => returnedJSON.value = json)
     
     orders.value.push(returnedJSON.value)
     //update the local order var instead of going to eventually consistent DynamoDB
@@ -131,7 +139,6 @@ async function postOrder(){
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
 <br>
-
 <div class="success" v-if="status == 200">Order saved!</div>
 <div class="error" v-else-if="status >= 400">Record was not saved! {{ returnedJSON }}</div>
 <br>
@@ -178,59 +185,10 @@ async function postOrder(){
     <div><input class="purple" type="text" v-model="City"> State</div>
     <div>
         <select class="purple" v-model="State">
-            <option value='AL'>Alabama</option>
-<option value='AK'>Alaska</option>
-<option value='AZ'>Arizona</option>
-<option value='AR'>Arkansas</option>
-<option value='CA'>California</option>
-<option value='CO'>Colorado</option>
-<option value='CT'>Connecticut</option>
-<option value='DE'>Delaware</option>
-<option value='DC'>Dist. of Columbia</option>
-<option value='FL'>Florida</option>
-<option value='GA'>Georgia</option>
-<option value='HI'>Hawaii</option>
-<option value='ID'>Idaho</option>
-<option value='IL'>Illinois</option>
-<option value='IN'>Indiana</option>
-<option value='IA'>Iowa</option>
-<option value='KS'>Kansas</option>
-<option value='KY'>Kentucky</option>
-<option value='LA'>Louisiana</option>
-<option value='ME'>Maine</option>
-<option value='MD'>Maryland</option>
-<option value='MA'>Massachusetts</option>
-<option value='MI'>Michigan</option>
-<option value='MN'>Minnesota</option>
-<option value='MS'>Mississippi</option>
-<option value='MO'>Missouri</option>
-<option value='MT'>Montana</option>
-<option value='NE'>Nebraska</option>
-<option value='NV'>Nevada</option>
-<option value='NH'>New Hampshire</option>
-<option value='NJ'>New Jersey</option>
-<option value='NM'>New Mexico</option>
-<option value='NY'>New York</option>
-<option value='NC'>North Carolina</option>
-<option value='ND'>North Dakota</option>
-<option value='OH'>Ohio</option>
-<option value='OK'>Oklahoma</option>
-<option value='OR'>Oregon</option>
-<option value='PW'>Palau</option>
-<option value='PA'>Pennsylvania</option>
-<option value='RI'>Rhode Island</option>
-<option value='SC'>South Carolina</option>
-<option value='SD'>South Dakota</option>
-<option value='TN'>Tennessee</option>
-<option value='TX'>Texas</option>
-<option value='UT'>Utah</option>
-<option value='VT'>Vermont</option>
-<option value='VI'>Virgin Islands</option>
-<option value='VA'>Virginia</option>
-<option value='WA'>Washington</option>
-<option value='WV'>West Virginia</option>
-<option value='WI'>Wisconsin</option>
-<option value='WY'>Wyoming</option>
+            <option
+            v-for="state in states"
+            v-bind:value="state.key"
+            :selected="state.key === State">{{ state.val }}</option>
         </select>
     </div>
 
