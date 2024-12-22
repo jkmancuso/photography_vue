@@ -9,8 +9,11 @@ const jobs = ref([])
 const orders = ref([])
 const JobId = ref()
 const RecordNum = ref(0)
+const GroupPictureNumOptions = ref(["B1","C1","JE1","O1","WC1","VJ1"])
+const GroupPictureNum = ref()
+const Groups = ref([])
 const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
-const [Group,GroupQuantity,GroupPictureNum,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref(),ref()]
+const [Group,GroupQuantity,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref()]
 
 // on fresh page load
 if (!jobs.value.length){
@@ -28,8 +31,8 @@ async function getOrdersFromDB(){
     .then(data => {orders.value=data;return orders;})
     .then(orders => RecordNum.value=orders.value.length)
   
-  getYear()
-  
+  getJobInfo()
+
   if (RecordNum.value >0) {
     fillInForm()      
   } else{
@@ -87,11 +90,12 @@ function resetForm(){
   Amount.value=''
 }
 
-function getYear(){
+function getJobInfo(){
 
   for (let num in jobs.value){
     if (jobs.value[num].id == JobId.value){
       Year.value = jobs.value[num].job_year
+      Groups.value= jobs.value[num].job_groups
       return
     }
   }
@@ -212,8 +216,20 @@ async function postOrder(){
         <div>Picture #</div>
 
         <div><input type="number" min="0" max="99"></div>
-        <div><select v-model="Group"><option>test2</option><option>test</option></select></div>
-        <div><select><option>test</option></select></div>
+        <div>
+          <select v-model="Group">
+          <option v-for="group in Groups"
+          v-bind:value="group"
+          :selected="group === Group">{{ group }}</option>
+          </select>
+        </div>
+        <div>
+          <select v-model="GroupPictureNum">
+          <option v-for="picturenum in GroupPictureNumOptions"
+          v-bind:value="picturenum"
+          :selected="picturenum === GroupPictureNum"> {{ picturenum }}</option>
+          </select>
+        </div>
     </div>
 
     <div class="red">NO NOT MAKE AN ENTRY HERE<br>UNLESS STUDENT IS ORDERING GROUP</div>
