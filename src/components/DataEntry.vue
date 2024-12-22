@@ -12,6 +12,7 @@ const RecordNum = ref(0)
 const GroupPictureNumOptions = ref(["B1","C1","JE1","O1","WC1","VJ1"])
 const GroupPictureNum = ref()
 const Groups = ref([])
+const CreatedAt = ref()
 const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
 const [Group,GroupQuantity,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref()]
 
@@ -59,13 +60,16 @@ function fillInForm(){
   City.value=order.city
   State.value=order.state
   Zip.value=order.zip
-  PhoneNum.value=order.phone_num
+  PhoneNum.value=order.phone
   Group.value=order.group
   GroupQuantity.value=order.group_quantity
   GroupPictureNum.value=order.group_picture_num
   CheckNum.value=order.check_num
   Amount.value=order.value
   PaymentMethod.value=order.payment_method
+  
+  CreatedAt.value=new Date(order.CreatedAt).toDateString()
+  console.log(CreatedAt.value)
 }
 
 function newRecord(){
@@ -215,7 +219,7 @@ async function postOrder(){
         <div>Group</div>
         <div>Picture #</div>
 
-        <div><input type="number" min="0" max="99"></div>
+        <div><input type="number" min="0" max="99" v-model="GroupQuantity"></div>
         <div>
           <select v-model="Group">
           <option v-for="group in Groups"
@@ -334,7 +338,7 @@ async function postOrder(){
 <br>
 <div class="container-end">
   <div>Date Created On</div>
-  <div><input type="text" class="purple"></div>
+  <div><input type="text" class="purple" readonly v-model="CreatedAt"></div>
   <div>Number of pictures in this order</div>
   <div><input type="text" class="purple" size="2" maxlength="2" v-model="NumberPictures"></div>
   <div><button @click="postOrder">Update/Add</button></div>
