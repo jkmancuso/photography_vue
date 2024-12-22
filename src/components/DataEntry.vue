@@ -5,33 +5,40 @@ const status = ref()
 const returnedJSON = ref()
 const jobs = ref([])
 const orders = ref([])
-const selectedJobId = ref()
-const RecordNum = ref(1)
-const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
+const JobId = ref()
+const RecordNum = ref(0)
+const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
+const [Group,GroupQuantity,GroupPictureNum,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref(),ref()]
 
 // on fresh page load
 if (!jobs.value.length){
     fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs')
     .then( response => response.json())
     .then(data=> {jobs.value = data})
-
 }    
-
-if (!orders.value.length && selectedJobId.value){
-    getOrdersFromDB()
-}
 
 //treat the orders ref like a ro cache and call this func when the DB is updated
 async function getOrdersFromDB(){ 
-    fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
-        selectedJobId.value +'/orders')
-    .then( response => response.json())
-    .then(data=> {console.log(data);orders.value=data})
+    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
+        JobId.value +'/orders')
+    .then(response => response.json())
+    .then(data => {orders.value=data;return orders;})
+    .then(orders => RecordNum.value=orders.value.length)
+  
+    console.log("ORDERS" + orders.value[0].id)
+    if (RecordNum.value >0) {
+      fillInForm()      
+    } else{
+      RecordNum.value = 1
+    }
+    
+
 }
 
 function fillInForm(){
+  console.log("Record number: "+RecordNum.value)
     let order = orders.value[RecordNum.value-1]
-
+  
     //left side are the v-model variable names
     //right side are the api json field names
     Fname.value=order.fname
@@ -41,13 +48,16 @@ function fillInForm(){
     State.value=order.state
     Zip.value=order.zip
     PhoneNum.value=order.phone_num
+    Group.value=order.group
+    GroupQuantity.value=order.group_quantity
+    GroupPictureNum.value=order.group_picture_num
     CheckNum.value=order.check_num
     Amount.value=order.value
     PaymentMethod.value=order.payment_method
-    Year.value=order.year
+    Year.value=order.job_year
 }
 
-function checkPostStatus(response){
+/*function checkPostStatus(response){
 
     status.value = response.status
     if ( status.value == "200") {
@@ -56,23 +66,44 @@ function checkPostStatus(response){
 
     returnedJSON.value = response.json()
     return returnedJSON.value
+}*/
+
+function newRecord(){
+  resetForm()
+  RecordNum.value=orders.value.length + 1
+  orders.value.push({"record_num":RecordNum.value})
+  
 }
 
+function resetForm(){
+  Fname.value=''
+  Lname.value=''
+  Address.value=''
+  City.value=''
+  Zip.value=''
+  PhoneNum.value=''
+  GroupQuantity.value=''
+  Group.value=''
+  GroupPictureNum=''
+}
 
 async function postOrder(){
 
-    let NextRecordNum = Number(record_num.value) + 1
     let json = {
             fname: Fname.value,
             lname: Lname.value,
-            job_id: job_id.value,
-            record_num: NextRecordNum,
+            job_id: JobId.value,
+            record_num: Number(RecordNum.value),
             address: Address.value,
             city: City.value,
             state: State.value,
             phone_num: PhoneNum.value,
             zip: Zip.value,
+            group: Group.value,
+            group_quantity: Number(GroupQuantity.value),
+            group_picture_num: GroupPictureNum.value,
             check_num: Number(CheckNum.value),
+            group_quantity:Number(GroupQuantity.value),
             amount: Number(Amount.value),
             payment_method: PaymentMethod.value
         }
@@ -85,13 +116,14 @@ async function postOrder(){
         },
         body: JSON.stringify(json)
 
-    }).then( response => checkPostStatus(response))
-    .then(data=> console.log(data))
-    .then(orders.value.push(json))
-    .then(RecordNum.value=NextRecordNum) 
+    }).then( response => response.json())
+    .then(json => returnedJSON.value = json)
+    
+    orders.value.push(returnedJSON.value)
     //update the local order var instead of going to eventually consistent DynamoDB
     //GSI doesnt support consistent read (ie "read after write")
     //otherwise we would have to call getOrdersFromDB with a gross 2s sleep timer added
+
 }
 </script>
 
@@ -99,30 +131,34 @@ async function postOrder(){
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
 <br>
-{{ orders }}
+
 <div class="success" v-if="status == 200">Order saved!</div>
 <div class="error" v-else-if="status >= 400">Record was not saved! {{ returnedJSON }}</div>
 <br>
 <div class="container-main">
     <div>Job Name</div>
     <div>
-        <select class="purple" v-model="selectedJobId" @change="getOrdersFromDB">
+        <select class="purple" v-model="JobId" @change="getOrdersFromDB">
         <option
             v-for="job in jobs"
             v-bind:value="job.id" > {{  job.job_name }}</option>
         </select>
     </div>
-    <div></div>
+    <div><button v-if="orders.length>0" @click="newRecord()">NEXT RECORD</button></div>
     <div></div>
 
     <div>Year</div>
     <div><input class="purple" type="text" size='4' readonly v-model="Year"></div>
-    <div>Record # 
+    
+    <div v-if="orders.length > 0">Record # 
         <select v-model="RecordNum" @change="fillInForm">
             <option 
             v-for="order in orders"
-            v-bind:value="order.record_num" >{{ order.record_num }}</option>
-        </select> of {{ orders.length }}</div>
+            v-bind:value="order.record_num" 
+            :selected="order.record_num === RecordNum">{{ order.record_num }}</option>
+        </select> of {{ orders.length }}
+    </div>
+    <div v-else>First record</div>
     <div></div>
 </div>
 <form id="MainForm" @submit.prevent>
@@ -215,7 +251,7 @@ async function postOrder(){
         <div>Picture #</div>
 
         <div><input type="number" min="0" max="99"></div>
-        <div><select><option>test</option></select></div>
+        <div><select v-model="Group"><option>test2</option><option>test</option></select></div>
         <div><select><option>test</option></select></div>
     </div>
 
