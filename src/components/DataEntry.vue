@@ -23,10 +23,10 @@ if (!jobs.value.length){
 //treat the orders ref like a ro cache and call this func when the DB is updated
 async function getOrdersFromDB(){ 
   await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
-      JobId.value +'/orders')
-      .then(response => response.json())
-      .then(data => {orders.value=data;return orders;})
-      .then(orders => RecordNum.value=orders.value.length)
+    JobId.value +'/orders')
+    .then(response => response.json())
+    .then(data => {orders.value=data;return orders;})
+    .then(orders => RecordNum.value=orders.value.length)
   
   getYear()
   
@@ -38,8 +38,16 @@ async function getOrdersFromDB(){
 
 }
 
+async function updateStateFromZipCode(){
+  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/zipcodes/' + 
+      Zip.value)
+      .then(response => response.json())
+      .then(data => {State.value=data.state;City.value=data.city})
+}
+
 function fillInForm(){
   let order = orders.value[RecordNum.value-1]
+  console.log(order)
   //left side are the v-model variable names
   //right side are the api json field names
   Fname.value=order.fname
@@ -56,17 +64,6 @@ function fillInForm(){
   Amount.value=order.value
   PaymentMethod.value=order.payment_method
 }
-
-/*function checkPostStatus(response){
-
-    status.value = response.status
-    if ( status.value == "200") {
-        document.getElementById("MainForm").reset();
-    }
-
-    returnedJSON.value = response.json()
-    return returnedJSON.value
-}*/
 
 function newRecord(){
   resetForm()
@@ -85,6 +82,9 @@ function resetForm(){
   GroupQuantity.value=''
   Group.value=''
   GroupPictureNum.value=''
+  PaymentMethod.value=''
+  CheckNum.value=''
+  Amount.value=''
 }
 
 function getYear(){
@@ -193,7 +193,10 @@ async function postOrder(){
     </div>
 
     <div>Zip</div>
-    <div><input type="text" size='5' maxlength='5' v-model="Zip"><button>Find</button></div>
+    <div>
+      <input type="text" size='5' maxlength='5' v-model="Zip">
+      <button @click="updateStateFromZipCode">Find</button>
+    </div>
     <div>Phone Number</div>
     <div><input type="text" v-model="PhoneNum"></div>
     <div></div>
