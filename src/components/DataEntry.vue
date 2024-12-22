@@ -6,8 +6,8 @@ const returnedJSON = ref()
 const jobs = ref([])
 const orders = ref([])
 const selectedJobId = ref()
-const selectedRecordNum = ref(1)
-const fname = ref("")
+const RecordNum = ref(1)
+const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
 
 // on fresh page load
 if (!jobs.value.length){
@@ -30,8 +30,21 @@ async function getOrdersFromDB(){
 }
 
 function fillInForm(){
-    let order = orders.value[selectedRecordNum.value-1]
-    fname.value=order.fname 
+    let order = orders.value[RecordNum.value-1]
+
+    //left side are the v-model variable names
+    //right side are the api json field names
+    Fname.value=order.fname
+    Lname.value=order.lname
+    Address.value=order.address
+    City.value=order.city
+    State.value=order.state
+    Zip.value=order.zip
+    PhoneNum.value=order.phone_num
+    CheckNum.value=order.check_num
+    Amount.value=order.value
+    PaymentMethod.value=order.payment_method
+    Year.value=order.year
 }
 
 function checkPostStatus(response){
@@ -48,18 +61,20 @@ function checkPostStatus(response){
 
 async function postOrder(){
 
-    let NextRecordNum = Number(document.getElementById('record_num').value) + 1
+    let NextRecordNum = Number(record_num.value) + 1
     let json = {
-            fname: fname.value,
-            lname: document.getElementById('lname').value,
-            job_id: document.getElementById('job_id').value,
+            fname: Fname.value,
+            lname: Lname.value,
+            job_id: job_id.value,
             record_num: NextRecordNum,
-            address: document.getElementById('address').value,
-            city: document.getElementById('city').value,
-            state: document.getElementById('state').value,
-            phone_num: document.getElementById('phone_num').value,
-            check_num: Number(document.getElementById('check_num').value),
-            amount: Number(document.getElementById('amount').value)
+            address: Address.value,
+            city: City.value,
+            state: State.value,
+            phone_num: PhoneNum.value,
+            zip: Zip.value,
+            check_num: Number(CheckNum.value),
+            amount: Number(Amount.value),
+            payment_method: PaymentMethod.value
         }
 
     await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
@@ -73,7 +88,7 @@ async function postOrder(){
     }).then( response => checkPostStatus(response))
     .then(data=> console.log(data))
     .then(orders.value.push(json))
-    .then(selectedRecordNum.value=NextRecordNum) 
+    .then(RecordNum.value=NextRecordNum) 
     //update the local order var instead of going to eventually consistent DynamoDB
     //GSI doesnt support consistent read (ie "read after write")
     //otherwise we would have to call getOrdersFromDB with a gross 2s sleep timer added
@@ -91,7 +106,7 @@ async function postOrder(){
 <div class="container-main">
     <div>Job Name</div>
     <div>
-        <select class="purple" id="job_id" v-model="selectedJobId" @change="getOrdersFromDB">
+        <select class="purple" v-model="selectedJobId" @change="getOrdersFromDB">
         <option
             v-for="job in jobs"
             v-bind:value="job.id" > {{  job.job_name }}</option>
@@ -101,9 +116,9 @@ async function postOrder(){
     <div></div>
 
     <div>Year</div>
-    <div><input class="purple" type="text" size='4' maxlength='4' id="year"></div>
+    <div><input class="purple" type="text" size='4' readonly v-model="Year"></div>
     <div>Record # 
-        <select id="record_num" v-model="selectedRecordNum" @change="fillInForm">
+        <select v-model="RecordNum" @change="fillInForm">
             <option 
             v-for="order in orders"
             v-bind:value="order.record_num" >{{ order.record_num }}</option>
@@ -116,17 +131,17 @@ async function postOrder(){
 <br>
 <div class="container-student">
     <div>First Name</div>
-    <div><input type="text" id="fname" v-model="fname"></div>
+    <div><input type="text" v-model="Fname"></div>
     <div>Last Name</div>
-    <div><input type="text" id="lname"><button>Find</button></div>
+    <div><input type="text" v-model="Lname"><button>Find</button></div>
     <div></div>
 
     <div>Street Address</div>
-    <div><input type="text" id="address"></div>
+    <div><input type="text" v-model="Address"></div>
     <div>City</div>
-    <div><input class="purple" type="text" id="city"> State</div>
+    <div><input class="purple" type="text" v-model="City"> State</div>
     <div>
-        <select class="purple" id="state">
+        <select class="purple" v-model="State">
             <option value='AL'>Alabama</option>
 <option value='AK'>Alaska</option>
 <option value='AZ'>Arizona</option>
@@ -184,9 +199,9 @@ async function postOrder(){
     </div>
 
     <div>Zip</div>
-    <div><input type="text" size='5' maxlength='5' id="zip"><button>Find</button></div>
+    <div><input type="text" size='5' maxlength='5' v-model="Zip"><button>Find</button></div>
     <div>Phone Number</div>
-    <div><input type="text" id="phone_num"></div>
+    <div><input type="text" v-model="PhoneNum"></div>
     <div></div>
 </div>
 
@@ -277,12 +292,12 @@ async function postOrder(){
     Accounting Information<br><br>
     <div class="container-accounting">
       <div>Payment Method</div>
-      <div><input type="text"  size="5" maxlength="5" id="payment_method"></div>
+      <div><input type="text"  size="5" maxlength="5" v-model="PaymentMethod"></div>
       <div>Check Num</div>
-      <div><input type="number"  min="0" max="99" id="check_num"></div>
+      <div><input type="number"  min="0" max="99" v-model="CheckNum"></div>
 
       <div>Total Paid</div>
-      <div><input type="number"  min="0" max="99" id="amount"></div>
+      <div><input type="number"  min="0" max="99" v-model="Amount"></div>
       <div></div>
       <div></div>
 
@@ -308,7 +323,7 @@ async function postOrder(){
   <div>Date Created On</div>
   <div><input type="text" class="purple"></div>
   <div>Number of pictures in this order</div>
-  <div><input type="text" class="purple" size="2" maxlength="2"></div>
+  <div><input type="text" class="purple" size="2" maxlength="2" v-model="NumberPictures"></div>
   <div><button @click="postOrder">Update/Add</button></div>
   <div></div>
 </div>
