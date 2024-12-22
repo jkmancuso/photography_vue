@@ -14,7 +14,13 @@ const GroupPictureNum = ref()
 const Groups = ref([])
 const CreatedAt = ref()
 const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
-const [Group,GroupQuantity,CheckNum,PaymentMethod,NumberPictures] = [ref(),ref(),ref(),ref(),ref()]
+const [Group,GroupQuantity,CheckNum,PaymentMethod] = [ref(),ref(),ref(),ref()]
+
+const [WoodwindQuantity,BrassQuantity,PercussionQuantity,StringsQuantity,VoiceQuantity] = [ref(),ref(),ref(),ref(),ref()]
+const [WoodwindInstrument,BrassInstrument,PercussionInstrument,StringsInstrument,VoiceInstrument] = [ref(),ref(),ref(),ref(),ref()]
+const [WoodwindPosition,BrassPosition,PercussionPosition,StringsPosition,VoicePosition] = [ref(),ref(),ref(),ref(),ref()]
+const [WoodwindPictureNum,BrassPictureNum,PercussionPictureNum,StringsPictureNum,VoicePictureNum] = [ref(),ref(),ref(),ref(),ref()]
+
 
 // on fresh page load
 if (!jobs.value.length){
@@ -69,7 +75,14 @@ function fillInForm(){
   PaymentMethod.value=order.payment_method
   
   CreatedAt.value=new Date(order.CreatedAt).toDateString()
-  console.log(CreatedAt.value)
+  
+  const section = order.section
+  if (section.name == "woodwind"){
+    WoodwindQuantity.value=section.quantity
+    WoodwindInstrument.value=section.instrument
+    WoodwindPosition.value=section.position
+    WoodwindPictureNum.value=section.picture_num
+  }
 }
 
 function newRecord(){
@@ -245,93 +258,93 @@ async function postOrder(){
 
 <div class="container-section">
 
-  <div></div>
-  <div class="section-woodwind">Woodwind Section</div>
-  <div></div>
+<div></div>
+<div class="section-woodwind">Woodwind Section</div>
+<div></div>
 
-  <div></div>
-  <div class="section-brass">Brass Section</div>
-  <div></div>
+<div></div>
+<div class="section-brass">Brass Section</div>
+<div></div>
 
-  <div>Qty</div>
-  <div>Instrument</div>
-  <div>Position</div>
-  <div>Picture #</div>
+<div>Qty</div>
+<div>Instrument</div>
+<div>Position</div>
+<div>Picture #</div>
 
-  <div>Qty</div>
-  <div>Instrument</div>
-  <div>Position</div>
-  <div>Picture #</div>
+<div>Qty</div>
+<div>Instrument</div>
+<div>Position</div>
+<div>Picture #</div>
 
-  <div><input type="number" min="0" max="99"></div>
-  <div><select></select></div>
-  <div><select></select></div>
-  <div><select></select></div>
+<div><input type="number" min="0" max="99" v-model="WoodwindQuantity"></div>
+<div><select v-model="WoodwindInstrument"></select></div>
+<div><select v-model="WoodwindPosition"></select></div>
+<div><select v-model="WoodwindPictureNum"></select></div>
 
-  <div><input type="number" min="0" max="99"></div>
-  <div><select></select></div>
-  <div><select></select></div>
-  <div><select></select></div>
+<div><input type="number" min="0" max="99" v-model="BrassQuantity"></div>
+<div><select v-model="BrassInstrument"></select></div>
+<div><select v-model="BrassPosition"></select></div>
+<div><select v-model="BrassPictureNum"></select></div>
 
-  <div></div>
-  <div class="section-percussion">Percussion Section</div>
-  <div></div>
+<div></div>
+<div class="section-percussion">Percussion Section</div>
+<div></div>
 
-  <div></div>
-  <div class="section-strings">Strings Section</div>
-  <div></div>
-  
-  <div>Qty</div>
-  <div>Instrument</div>
-  <div>Position</div>
-  <div>Picture #</div>
+<div></div>
+<div class="section-strings">Strings Section</div>
+<div></div>
 
-  <div>Qty</div>
-  <div>Instrument</div>
-  <div>Position</div>
-  <div>Picture #</div>
+<div>Qty</div>
+<div>Instrument</div>
+<div>Position</div>
+<div>Picture #</div>
 
-  <div><input type="number" min="0" max="99"></div>
-  <div><select></select></div>
-  <div><select></select></div>
-  <div><select></select></div>
+<div>Qty</div>
+<div>Instrument</div>
+<div>Position</div>
+<div>Picture #</div>
 
-  <div><input type="number" min="0" max="99"></div>
-  <div><select></select></div>
-  <div><select></select></div>
-  <div><select></select></div>
+<div><input type="number" min="0" max="99" v-model="PercussionQuantity"></div>
+<div><select v-model="PercussionInstrument"></select></div>
+<div><select v-model="PercussionPosition"></select></div>
+<div><select v-model="PercussionPictureNum"></select></div>
 
-  <div></div>
-  <div class="section-voice">Voice Section</div>
-  <div></div>
+<div><input type="number" min="0" max="99" v-model="StringsQuantity"></div>
+<div><select v-model="StringsInstrument"></select></div>
+<div><select v-model="StringsPosition"></select></div>
+<div><select v-model="StringsPictureNum"></select></div>
 
-  <div class="section-accounting">
-    Accounting Information<br><br>
-    <div class="container-accounting">
-      <div>Payment Method</div>
-      <div><input type="text"  size="5" maxlength="5" v-model="PaymentMethod"></div>
-      <div>Check Num</div>
-      <div><input type="number"  min="0" max="99" v-model="CheckNum"></div>
+<div></div>
+<div class="section-voice">Voice Section</div>
+<div></div>
 
-      <div>Total Paid</div>
-      <div><input type="number"  min="0" max="99" v-model="Amount"></div>
-      <div></div>
-      <div></div>
+<div class="section-accounting">
+  Accounting Information<br><br>
+  <div class="container-accounting">
+    <div>Payment Method</div>
+    <div><input type="text"  size="5" maxlength="5" v-model="PaymentMethod"></div>
+    <div>Check Num</div>
+    <div><input type="number"  min="0" max="99" v-model="CheckNum"></div>
 
-    </div>
-    
+    <div>Total Paid</div>
+    <div><input type="number"  min="0" max="99" v-model="Amount"></div>
+    <div></div>
+    <div></div>
+
   </div>
   
-  <div>Qty</div>
-  <div>Instrument</div>
-  <div>Position</div>
-  <div>Picture #</div>
+</div>
+
+<div>Qty</div>
+<div>Instrument</div>
+<div>Position</div>
+<div>Picture #</div>
 
 
-  <div><input type="text" size="2" maxlength="2"></div>
-  <div><select></select></div>
-  <div><select></select></div>
-  <div><select></select></div>
+<div><input type="number" min="0" max="99" v-model="VoiceQuantity"></div>
+<div><select v-model="VoiceInstrument"></select></div>
+<div><select v-model="VoicePosition"></select></div>
+<div><select v-model="VoicePictureNum"></select></div>
 
 </div>
 
@@ -340,7 +353,13 @@ async function postOrder(){
   <div>Date Created On</div>
   <div><input type="text" class="purple" readonly v-model="CreatedAt"></div>
   <div>Number of pictures in this order</div>
-  <div><input type="text" class="purple" size="2" maxlength="2" v-model="NumberPictures"></div>
+  <div><input type="text" class="purple" size="2" maxlength="2" 
+  :value="(GroupQuantity || 0) +
+    (WoodwindQuantity || 0) + 
+    (BrassQuantity || 0) +
+    (PercussionQuantity || 0) +
+    (StringsQuantity || 0) +
+    (VoiceQuantity || 0)"></div>
   <div><button @click="postOrder">Update/Add</button></div>
   <div></div>
 </div>
