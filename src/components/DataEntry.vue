@@ -361,14 +361,14 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="instrument in WoodwindInstruments"
-    v-bind:value="instrument"
+    :value="instrument"
     :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
   </div>
 <div><select>
   <option v-for="position in Positions"
-  v-bind:value="position"
+  :value="position"
   :selected="position == SectionMap.woodwind.position"
   > {{ position }}</option>
 </select></div>
@@ -378,7 +378,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="instrument in BrassInstruments"
-    v-bind:value="instrument"
+    :value="instrument"
     :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
@@ -386,7 +386,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="position in Positions"
-  v-bind:value="position"
+  :value="position"
   :selected="position == SectionMap.brass.position"
   > {{ position }}</option>
   </select></div>
@@ -414,7 +414,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="instrument in PercussionInstruments"
-    v-bind:value="instrument"
+    :value="instrument"
     :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
@@ -422,7 +422,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="position in Positions"
-  v-bind:value="position"
+  :value="position"
   :selected="position == SectionMap.percussion.position"
   > {{ position }}</option>
   </select></div>
@@ -432,7 +432,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="instrument in StringsInstruments"
-    v-bind:value="instrument"
+    :value="instrument"
     :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
@@ -441,7 +441,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="position in Positions"
-  v-bind:value="position"
+  :value="position"
   :selected="position == SectionMap.strings.position"
   > {{ position }}</option>
   </select>
@@ -478,7 +478,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="instrument in VoiceInstruments"
-    v-bind:value="instrument"
+    :value="instrument"
     :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
@@ -486,7 +486,7 @@ async function postOrder(){
 <div>
   <select>
     <option v-for="position in Positions"
-  v-bind:value="position"
+  :value="position"
   :selected="position == SectionMap.voice.position"
   > {{ position }}</option>
   </select>
