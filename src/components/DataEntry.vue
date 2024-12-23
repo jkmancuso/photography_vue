@@ -15,9 +15,11 @@ const Jobs = ref([])
 const Order = ref()
 const SelectedInstrument = ref()
 const SelectedPictureNum = ref()
-const Orders = ref([])
+
+const [Orders,DisplayOrders] = [ref([]),ref([])]
+const [RecordNum] = [ref(0)]
 const JobId = ref()
-const RecordNum = ref(0)
+
 
 const GroupPictureNumOptions = ["B1","C1","JE1","O1","WC1","VJ1"]
 const GroupPictureNum = ref()
@@ -98,6 +100,7 @@ async function getOrdersFromAPI(){
     .then(data => {Orders.value=data;return Orders;})
     .then(Orders => RecordNum.value=Orders.value.length)
   
+  DisplayOrders.value=JSON.parse(JSON.stringify(Orders.value))
   getYearInfo()
   getGroupsFromAPI()
 
@@ -125,6 +128,8 @@ async function updateStateFromZipCode(){
 }
 
 function fillInForm(){
+  resetForm()
+  
   Order.value = Orders.value[RecordNum.value-1]
   console.log(Order.value)
   //left side are the v-model variable names
@@ -144,46 +149,39 @@ function fillInForm(){
   PaymentMethod.value=Order.value.payment_method
   
   const section = Order.value.section
-  SelectedInstrument.value= Order.value.section.instrument
-  SelectedPictureNum.value= Order.value.section.picture_num
+  console.log("SECTION:" + section.name)
 
-  SectionMap.value[section.name].quantity=section.quantity 
-  SectionMap.value[section.name].instrument=section.instrument
-  SectionMap.value[section.name].position=section.position
-  SectionMap.value[section.name].picture_num=section.picture_num 
+  if (section.name != null){
+    SelectedInstrument.value= Order.value.section.instrument || ""
+  SelectedPictureNum.value= Order.value.section.picture_num || ""
+
+  SectionMap.value[section.name].quantity=section.quantity || 0
+  SectionMap.value[section.name].instrument=section.instrument || ""
+  SectionMap.value[section.name].position=section.position || ""
+  SectionMap.value[section.name].picture_num=section.picture_num || ""
+  }
+  
 
   CreatedAt.value=new Date(Order.value.CreatedAt).toDateString()
 
 }
 
-// when you click tghe "NEXT RECORD BUTTON"
+// when you click the "NEXT RECORD BUTTON"
 function newRecord(){
-  //if the number of number of records exceeds the # of REAL orders, dont let user go further
-  //explained more below
-  if(RecordNum.value > getREALOrderCount()){
+
+  console.log("DISPLAY ORDERS:"+ DisplayOrders.value.length)
+  console.log("REAL ORDERS:"+ Orders.value.length)
+
+  if(DisplayOrders.value.length>Orders.value.length){
     return
   }
-  resetForm()
-  RecordNum.value=Orders.value.length + 1
-  Orders.value.push({"record_num":RecordNum.value})
-  
-}
 
-/*
-getREALOrderCount is a bit of a hack :(
-so, in the newRecordFunction when the "NEXT RECORD" button is clicked
-we push a fake order just containing "record_num" so that we can populate the
-Record # dropdown
-*/
-function getREALOrderCount(){
-  let finalcount=0
-  for (let theorder of Orders.value){
-    if(theorder.fname != null){
-      finalcount++
-    }
+  RecordNum.value++
+  DisplayOrders.value.push({"record_num":RecordNum.value})
+  resetForm()
+  
   }
-  return finalcount
-}
+
 //document.getElementById('MainForm').reset() not working :(
 function resetForm(){
   Fname.value=''
@@ -267,11 +265,15 @@ async function postOrder(){
     if (Status.value == 200) {
       PrevName.value = Fname.value + " " + Lname.value
       //RecordNum.value++ 
-      //Orders.value.push({"record_num":RecordNum.value})
+      Orders.value.push(ReturnedJSON)
+      //DisplayOrders.value.push(ReturnedJSON)
+      //console.log(Orders.value)
       //update the local order var instead of going to eventually consistent DynamoDB
       //GSI doesnt support consistent read (ie "read after write")
       //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
-      
+      //console.log("UPDATED Order count: " + Orders.value.length)
+      console.log("DISPLAY ORDERS:"+ DisplayOrders.value.length)
+      console.log("REAL ORDERS:"+ Orders.value.length)
     }
     
 
@@ -284,7 +286,7 @@ async function postOrder(){
 <br> 
 <div class="success" v-if="Status == 200">Order {{PrevName}} saved !</div>
 <div class="error" v-else-if="Status >= 400">Record was not saved! {{ ReturnedJSON }}</div>
-<br>
+<br> {{ RecordNum }}
 <div class="container-main">
     <div>Job Name</div>
     <div>
@@ -300,8 +302,8 @@ async function postOrder(){
     
     <div v-if="Orders.length > 0">Record # 
         <select v-model="RecordNum" @change="fillInForm">
-            <option v-for="order in Orders" :value="order.record_num"  >{{ order.record_num }}</option>
-        </select> of {{ Orders.length }}
+            <option v-for="order in DisplayOrders" :value="order.record_num"  >{{ order.record_num }}</option>
+        </select> of {{ DisplayOrders.length }}
     </div>
     <div v-else>First record</div>
     <div></div>
