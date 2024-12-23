@@ -248,9 +248,7 @@ async function postOrder(){
     <div>Job Name</div>
     <div>
         <select class="purple" v-model="JobId" @change="getOrdersFromAPI">
-        <option
-            v-for="job in Jobs"
-            :value="job.id" > {{  job.job_name }}</option>
+        <option v-for="job in Jobs" :value="job.id" > {{  job.job_name }}</option>
         </select>
     </div>
     <div><button v-if="Orders.length>0" @click="newRecord()">NEXT RECORD</button></div>
@@ -261,10 +259,7 @@ async function postOrder(){
     
     <div v-if="Orders.length > 0">Record # 
         <select v-model="RecordNum" @change="fillInForm">
-            <option 
-            v-for="order in Orders"
-            :value="order.record_num" 
-            :selected="order.record_num === RecordNum">{{ order.record_num }}</option>
+            <option v-for="order in Orders" :value="order.record_num"  >{{ order.record_num }}</option>
         </select> of {{ Orders.length }}
     </div>
     <div v-else>First record</div>
@@ -286,11 +281,8 @@ async function postOrder(){
     <div>City</div>
     <div><input class="purple" type="text" v-model="City"> State</div>
     <div>
-        <select class="purple" >
-            <option
-            v-for="state in states"
-            :value="state.key"
-            :selected="state.key === State">{{ state.val }}</option>
+        <select class="purple" v-model="State">
+            <option v-for="state in states" :value="state.key">{{ state.val }}</option>
         </select>
     </div>
 
@@ -315,22 +307,18 @@ async function postOrder(){
 
         <div><input type="number" min="0" max="99" v-model="GroupQuantity"></div>
         <div>
-          <select>
-          <option v-for="group in Groups"
-          :value="group.group_name"
-          :selected="group === Group">{{ group.group_name }}</option>
+          <select v-model="Group">
+          <option v-for="group in Groups" :value="group.group_name">{{ group.group_name }}</option>
           </select>
         </div>
         <div>
-          <select>
-          <option v-for="picturenum in GroupPictureNumOptions"
-          :value="picturenum"
-          :selected="picturenum === GroupPictureNum"> {{ picturenum }}</option>
+          <select v-model="GroupPictureNum">
+          <option v-for="picturenum in GroupPictureNumOptions" :value="picturenum"> {{ picturenum }}</option>
           </select>
         </div>
     </div>
 
-    <div class="red">NO NOT MAKE AN ENTRY HERE<br>UNLESS STUDENT IS ORDERING GROUP</div>
+    <div class="red">DO NOT MAKE AN ENTRY HERE<br>UNLESS STUDENT IS ORDERING GROUP</div>
 </div>
 
 <br>
@@ -359,36 +347,24 @@ async function postOrder(){
 
 <div><input type="number" min="0" max="99" v-model='SectionMap.woodwind.quantity'></div>
 <div>
-  <select>
-    <option v-for="instrument in WoodwindInstruments"
-    :value="instrument"
-    :selected="instrument === SelectedInstrument"
-    >{{ instrument }}</option>
+  <select v-model="SectionMap.woodwind.instrument">
+    <option v-for="instrument in WoodwindInstruments" :value="instrument">{{ instrument }}</option>
   </select>
   </div>
-<div><select>
-  <option v-for="position in Positions"
-  :value="position"
-  :selected="position == SectionMap.woodwind.position"
-  > {{ position }}</option>
+<div><select v-model="SectionMap.woodwind.position">
+  <option v-for="position in Positions" :value="position"> {{ position }}</option>
 </select></div>
 <div><select></select></div>
 
 <div><input type="number" min="0" max="99" v-model="SectionMap.brass.quantity"></div>
 <div>
-  <select>
-    <option v-for="instrument in BrassInstruments"
-    :value="instrument"
-    :selected="instrument === SelectedInstrument"
-    >{{ instrument }}</option>
+  <select v-model="SectionMap.brass.instrument">
+    <option v-for="instrument in BrassInstruments" :value="instrument">{{ instrument }}</option>
   </select>
 </div>
 <div>
-  <select>
-    <option v-for="position in Positions"
-  :value="position"
-  :selected="position == SectionMap.brass.position"
-  > {{ position }}</option>
+  <select v-model="SectionMap.brass.position">
+    <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select></div>
 <div><select></select></div>
 
@@ -412,38 +388,26 @@ async function postOrder(){
 
 <div><input type="number" min="0" max="99" v-model="SectionMap.percussion.quantity"></div>
 <div>
-  <select>
-    <option v-for="instrument in PercussionInstruments"
-    :value="instrument"
-    :selected="instrument === SelectedInstrument"
-    >{{ instrument }}</option>
+  <select v-model="SectionMap.percussion.instrument">
+    <option v-for="instrument in PercussionInstruments" :value="instrument">{{ instrument }}</option>
   </select>
 </div>
 <div>
-  <select>
-    <option v-for="position in Positions"
-  :value="position"
-  :selected="position == SectionMap.percussion.position"
-  > {{ position }}</option>
+  <select v-model="SectionMap.percussion.position">
+    <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select></div>
 <div><select></select></div>
 
 <div><input type="number" min="0" max="99" v-model="SectionMap.strings.quantity"></div>
 <div>
-  <select>
-    <option v-for="instrument in StringsInstruments"
-    :value="instrument"
-    :selected="instrument === SelectedInstrument"
-    >{{ instrument }}</option>
+  <select v-model="SectionMap.strings.instrument">
+    <option v-for="instrument in StringsInstruments" :value="instrument">{{ instrument }}</option>
   </select>
 </div>
 <div><select></select></div>
 <div>
-  <select>
-    <option v-for="position in Positions"
-  :value="position"
-  :selected="position == SectionMap.strings.position"
-  > {{ position }}</option>
+  <select v-model="SectionMap.strings.position">
+    <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select>
 </div>
 
@@ -476,19 +440,13 @@ async function postOrder(){
 
 <div><input type="number" min="0" max="99" v-model="SectionMap.voice.quantity"></div>
 <div>
-  <select>
-    <option v-for="instrument in VoiceInstruments"
-    :value="instrument"
-    :selected="instrument === SelectedInstrument"
-    >{{ instrument }}</option>
+  <select v-model="SectionMap.voice.instrument">
+    <option v-for="instrument in VoiceInstruments" :value="instrument">{{ instrument }}</option>
   </select>
 </div>
 <div>
-  <select>
-    <option v-for="position in Positions"
-  :value="position"
-  :selected="position == SectionMap.voice.position"
-  > {{ position }}</option>
+  <select v-model="SectionMap.voice.position">
+    <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select>
 </div>
 <div><select></select></div>
