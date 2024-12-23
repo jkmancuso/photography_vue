@@ -13,7 +13,7 @@ const Orders = ref([])
 const JobId = ref()
 const RecordNum = ref(0)
 
-const GroupPictureNumOptions = ref(["B1","C1","JE1","O1","WC1","VJ1"])
+const GroupPictureNumOptions = ["B1","C1","JE1","O1","WC1","VJ1"]
 const GroupPictureNum = ref()
 const Groups = ref([])
 
@@ -22,7 +22,7 @@ const [Group,GroupQuantity,CheckNum,PaymentMethod] = [ref(),ref(),ref(),ref()]
 
 const Instruments = ref([])
 
-const Positions = ref(["","1st","2nd","3rd"])
+const Positions = ["","1st","2nd","3rd"]
 const [WoodwindInstruments,BrassInstruments,PercussionInstruments,StringsInstruments,VoiceInstruments]=  [ref([]),ref([]),ref([]),ref([]),ref([])]
 
 const CreatedAt = ref()
@@ -215,7 +215,6 @@ async function postOrder(){
         group_picture_num: GroupPictureNum.value,
         section: sectionjson,
         check_num: Number(CheckNum.value),
-        group_quantity:Number(GroupQuantity.value),
         amount: Number(Amount.value),
         payment_method: PaymentMethod.value
     }
@@ -241,7 +240,7 @@ async function postOrder(){
 <template>
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
-<br> {{ SectionMap.woodwind }} 
+<br>
 <div class="success" v-if="status == 200">Order saved!</div>
 <div class="error" v-else-if="status >= 400">Record was not saved! {{ returnedJSON }}</div>
 <br>
