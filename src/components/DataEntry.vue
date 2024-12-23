@@ -149,10 +149,9 @@ function fillInForm(){
   PaymentMethod.value=Order.value.payment_method
   
   const section = Order.value.section
-  console.log("SECTION:" + section.name)
 
   //its optional to add a section to the order
-  if (section.name != null){
+  if (section?.name != null){
     SelectedInstrument.value= Order.value.section.instrument || ""
     SelectedPictureNum.value= Order.value.section.picture_num || ""
     
@@ -234,6 +233,7 @@ async function postOrder(){
     // only add the section to the DB for the one that has a quantity assigned 
     if(sectionquantity >0){
       sectionjson.quantity= sectionquantity
+      sectionjson.name = thesection
       sectionjson.instrument=SectionMap.value[thesection].instrument
       sectionjson.position=SectionMap.value[thesection].position
       sectionjson.picture_num=SectionMap.value[thesection].picture_num
@@ -271,8 +271,8 @@ async function postOrder(){
     
     if (Status.value == 200) {
       PrevName.value = Fname.value + " " + Lname.value
-       
-      Orders.value.push(ReturnedJSON)
+      console.log("RETURNED JSON:"+ ReturnedJSON.value)
+      Orders.value.push(ReturnedJSON.value)
       
       //update the local order var instead of going to eventually consistent DynamoDB
       //GSI doesnt support consistent read (ie "read after write")
