@@ -129,7 +129,7 @@ async function updateStateFromZipCode(){
 
 function fillInForm(){
   resetForm()
-  
+
   Order.value = Orders.value[RecordNum.value-1]
   console.log(Order.value)
   //left side are the v-model variable names
@@ -151,27 +151,32 @@ function fillInForm(){
   const section = Order.value.section
   console.log("SECTION:" + section.name)
 
+  //its optional to add a section to the order
   if (section.name != null){
     SelectedInstrument.value= Order.value.section.instrument || ""
-  SelectedPictureNum.value= Order.value.section.picture_num || ""
-
-  SectionMap.value[section.name].quantity=section.quantity || 0
-  SectionMap.value[section.name].instrument=section.instrument || ""
-  SectionMap.value[section.name].position=section.position || ""
-  SectionMap.value[section.name].picture_num=section.picture_num || ""
+    SelectedPictureNum.value= Order.value.section.picture_num || ""
+    
+    SectionMap.value[section.name].quantity=section.quantity || 0
+    SectionMap.value[section.name].instrument=section.instrument || ""
+    SectionMap.value[section.name].position=section.position || ""
+    SectionMap.value[section.name].picture_num=section.picture_num || ""
   }
   
-
   CreatedAt.value=new Date(Order.value.CreatedAt).toDateString()
 
 }
 
-// when you click the "NEXT RECORD BUTTON"
+/* when you click the "NEXT RECORD" button
+little bit of a hack here
+So, When you click the button it adds NOT to the real Orders
+but instead to a "DisplayOrders" which is what populates the 
+Record # dropdown. If we didn't do this, we'd have to create 
+a real, mostly blank record each time */
+
 function newRecord(){
 
-  console.log("DISPLAY ORDERS:"+ DisplayOrders.value.length)
-  console.log("REAL ORDERS:"+ Orders.value.length)
-
+  //prevent the user from clicking repeatedly 
+  // and getting too far ahead
   if(DisplayOrders.value.length>Orders.value.length){
     return
   }
@@ -225,6 +230,8 @@ async function postOrder(){
   for (let thesection of SectionNames){
     let sectionquantity = Number(SectionMap.value[thesection].quantity)
     
+    // there are 5 sections [woodwind,brass,percussion,strings,voice]
+    // only add the section to the DB for the one that has a quantity assigned 
     if(sectionquantity >0){
       sectionjson.quantity= sectionquantity
       sectionjson.instrument=SectionMap.value[thesection].instrument
@@ -264,10 +271,9 @@ async function postOrder(){
     
     if (Status.value == 200) {
       PrevName.value = Fname.value + " " + Lname.value
-      //RecordNum.value++ 
+       
       Orders.value.push(ReturnedJSON)
-      //DisplayOrders.value.push(ReturnedJSON)
-      //console.log(Orders.value)
+      
       //update the local order var instead of going to eventually consistent DynamoDB
       //GSI doesnt support consistent read (ie "read after write")
       //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
