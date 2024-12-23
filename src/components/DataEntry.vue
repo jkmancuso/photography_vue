@@ -250,7 +250,7 @@ async function postOrder(){
         <select class="purple" v-model="JobId" @change="getOrdersFromAPI">
         <option
             v-for="job in Jobs"
-            v-bind:value="job.id" > {{  job.job_name }}</option>
+            :value="job.id" > {{  job.job_name }}</option>
         </select>
     </div>
     <div><button v-if="Orders.length>0" @click="newRecord()">NEXT RECORD</button></div>
@@ -263,7 +263,7 @@ async function postOrder(){
         <select v-model="RecordNum" @change="fillInForm">
             <option 
             v-for="order in Orders"
-            v-bind:value="order.record_num" 
+            :value="order.record_num" 
             :selected="order.record_num === RecordNum">{{ order.record_num }}</option>
         </select> of {{ Orders.length }}
     </div>
@@ -289,7 +289,7 @@ async function postOrder(){
         <select class="purple" >
             <option
             v-for="state in states"
-            v-bind:value="state.key"
+            :value="state.key"
             :selected="state.key === State">{{ state.val }}</option>
         </select>
     </div>
@@ -317,14 +317,14 @@ async function postOrder(){
         <div>
           <select>
           <option v-for="group in Groups"
-          v-bind:value="group.group_name"
+          :value="group.group_name"
           :selected="group === Group">{{ group.group_name }}</option>
           </select>
         </div>
         <div>
           <select>
           <option v-for="picturenum in GroupPictureNumOptions"
-          v-bind:value="picturenum"
+          :value="picturenum"
           :selected="picturenum === GroupPictureNum"> {{ picturenum }}</option>
           </select>
         </div>
