@@ -38,7 +38,8 @@ async function getOrdersFromDB(){
     .then(data => {orders.value=data;return orders;})
     .then(orders => RecordNum.value=orders.value.length)
   
-  getJobInfo()
+  getYearInfo()
+  getGroups()
 
   if (RecordNum.value >0) {
     fillInForm()      
@@ -47,6 +48,14 @@ async function getOrdersFromDB(){
   }
 
 }
+
+
+async function getGroups(){
+  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups')
+      .then(response => response.json())
+      .then(data => Groups.value=data)
+}
+
 
 async function updateStateFromZipCode(){
   fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/zipcodes/' + 
@@ -107,12 +116,11 @@ function resetForm(){
   Amount.value=''
 }
 
-function getJobInfo(){
+function getYearInfo(){
 
   for (let num in jobs.value){
     if (jobs.value[num].id == JobId.value){
       Year.value = jobs.value[num].job_year
-      Groups.value= jobs.value[num].job_groups
       return
     }
   }
@@ -236,8 +244,8 @@ async function postOrder(){
         <div>
           <select v-model="Group">
           <option v-for="group in Groups"
-          v-bind:value="group"
-          :selected="group === Group">{{ group }}</option>
+          v-bind:value="group.group_name"
+          :selected="group === Group">{{ group.group_name }}</option>
           </select>
         </div>
         <div>
