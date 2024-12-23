@@ -2,6 +2,12 @@
 import { ref } from 'vue'
 
 import states from '../states.json'
+import woodwind_pictures from '../woodwind_pictures.json'
+import brass_pictures from '../brass_pictures.json'
+import percussion_pictures from '../percussion_pictures.json'
+import strings_pictures from '../strings_pictures.json'
+import voice_pictures from '../voice_pictures.json'
+
 
 const Status = ref()
 const ReturnedJSON = ref()
@@ -389,7 +395,11 @@ async function postOrder(){
 <div><select v-model="SectionMap.woodwind.position">
   <option v-for="position in Positions" :value="position"> {{ position }}</option>
 </select></div>
-<div><select></select></div>
+<div>
+  <select v-model="SectionMap.woodwind.picture_num">
+    <option v-for="picture_num in woodwind_pictures" :value="picture_num.picture"> {{ picture_num.picture }}</option>
+  </select>
+</div>
 
 <div><input type="number" min="0" max="99" v-model="SectionMap.brass.quantity"></div>
 <div>
@@ -401,7 +411,11 @@ async function postOrder(){
   <select v-model="SectionMap.brass.position">
     <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select></div>
-<div><select></select></div>
+<div>
+  <select v-model="SectionMap.brass.picture_num">
+    <option v-for="picture_num in brass_pictures" :value="picture_num.picture"> {{ picture_num.picture }}</option>
+  </select>
+</div>
 
 <div></div>
 <div class="section-percussion">Percussion Section</div>
@@ -431,7 +445,11 @@ async function postOrder(){
   <select v-model="SectionMap.percussion.position">
     <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select></div>
-<div><select></select></div>
+<div>
+  <select v-model="SectionMap.percussion.picture_num">
+    <option v-for="picture_num in percussion_pictures" :value="picture_num.picture"> {{ picture_num.picture }}</option>
+  </select>
+</div>
 
 <div><input type="number" min="0" max="99" v-model="SectionMap.strings.quantity"></div>
 <div>
@@ -439,10 +457,14 @@ async function postOrder(){
     <option v-for="instrument in StringsInstruments" :value="instrument">{{ instrument }}</option>
   </select>
 </div>
-<div><select></select></div>
 <div>
   <select v-model="SectionMap.strings.position">
     <option v-for="position in Positions" :value="position"> {{ position }}</option>
+  </select>
+</div>
+<div>
+  <select v-model="SectionMap.strings.picture_num">
+    <option v-for="picture_num in strings_pictures" :value="picture_num.picture"> {{ picture_num.picture }}</option>
   </select>
 </div>
 
@@ -484,7 +506,11 @@ async function postOrder(){
     <option v-for="position in Positions" :value="position"> {{ position }}</option>
   </select>
 </div>
-<div><select></select></div>
+<div>
+  <select v-model="SectionMap.voice.picture">
+    <option v-for="picture_num in voice_pictures" :value="picture_num.picture"> {{ picture_num.picture }}</option>
+  </select>
+</div>
 
 </div>
 
