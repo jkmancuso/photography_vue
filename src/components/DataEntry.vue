@@ -149,11 +149,12 @@ function fillInForm(){
   CreatedAt.value=new Date(Order.value.CreatedAt).toDateString()
 
 }
+
+// when you click tghe "NEXT RECORD BUTTON"
 function newRecord(){
-  //if the number of orders is already > number of records, dont let user go further
-  console.log("ORDER LENGTH: " + Orders.value.length )
-  console.log("RECORD NUM: " + RecordNum.value )
-  if(Orders.value.length < RecordNum.value){
+  //if the number of number of records exceeds the # of REAL orders, dont let user go further
+  //explained more below
+  if(RecordNum.value > getREALOrderCount()){
     return
   }
   resetForm()
@@ -162,6 +163,21 @@ function newRecord(){
   
 }
 
+/*
+getREALOrderCount is a bit of a hack :(
+so, in the newRecordFunction when the "NEXT RECORD" button is clicked
+we push a fake order just containing "record_num" so that we can populate the
+Record # dropdown
+*/
+function getREALOrderCount(){
+  let finalcount=0
+  for (let theorder of Orders.value){
+    if(theorder.fname != null){
+      finalcount++
+    }
+  }
+  return finalcount
+}
 //document.getElementById('MainForm').reset() not working :(
 function resetForm(){
   Fname.value=''
