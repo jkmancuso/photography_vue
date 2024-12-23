@@ -3,8 +3,8 @@ import { ref } from 'vue'
 
 import states from '../states.json'
 
-const status = ref()
-const returnedJSON = ref()
+const Status = ref()
+const ReturnedJSON = ref()
 const Jobs = ref([])
 const Order = ref()
 const SelectedInstrument = ref()
@@ -19,6 +19,7 @@ const Groups = ref([])
 
 const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
 const [Group,GroupQuantity,CheckNum,PaymentMethod] = [ref(),ref(),ref(),ref()]
+const PrevName = ref()
 
 const Instruments = ref([])
 
@@ -26,6 +27,8 @@ const Positions = ["","1st","2nd","3rd"]
 const [WoodwindInstruments,BrassInstruments,PercussionInstruments,StringsInstruments,VoiceInstruments]=  [ref([]),ref([]),ref([]),ref([]),ref([])]
 
 const CreatedAt = ref()
+
+const SectionNames=["woodwind","brass","percussion","strings","voice"]
 
 const SectionMap = ref({
   woodwind: {quantity: "",instrument:"",position:"",picture_num:""},
@@ -144,9 +147,15 @@ function fillInForm(){
   SectionMap.value[section.name].picture_num=section.picture_num 
 
   CreatedAt.value=new Date(Order.value.CreatedAt).toDateString()
-}
 
+}
 function newRecord(){
+  //if the number of orders is already > number of records, dont let user go further
+  console.log("ORDER LENGTH: " + Orders.value.length )
+  console.log("RECORD NUM: " + RecordNum.value )
+  if(Orders.value.length < RecordNum.value){
+    return
+  }
   resetForm()
   RecordNum.value=Orders.value.length + 1
   Orders.value.push({"record_num":RecordNum.value})
@@ -165,8 +174,7 @@ function resetForm(){
   Group.value=''
   GroupPictureNum.value=''
   
-  let sectionnames=["woodwind","brass","percussion","strings","voice"]
-  for (let thesection of sectionnames){
+  for (let thesection of SectionNames){
     SectionMap.value[thesection].quantity =''
     SectionMap.value[thesection].instrument =''
     SectionMap.value[thesection].position =''
@@ -192,13 +200,18 @@ function getYearInfo(){
 }
 async function postOrder(){
 
-  let sectionjson = {
-    instrument: "",
-    name:"",
-    picture_num:"",
-    position:"",
-    quantity:""
-  }
+  let sectionjson = {}
+
+  for (let thesection of SectionNames){
+    let sectionquantity = Number(SectionMap.value[thesection].quantity)
+    
+    if(sectionquantity >0){
+      sectionjson.quantity= sectionquantity
+      sectionjson.instrument=SectionMap.value[thesection].instrument
+      sectionjson.position=SectionMap.value[thesection].position
+      sectionjson.picture_num=SectionMap.value[thesection].picture_num
+    }
+  }  
 
   let json = {
         fname: Fname.value,
@@ -210,13 +223,13 @@ async function postOrder(){
         state: State.value,
         phone_num: PhoneNum.value,
         zip: Zip.value,
-        group: Group.value,
         group_quantity: Number(GroupQuantity.value),
+        group: Group.value,
         group_picture_num: GroupPictureNum.value,
         section: sectionjson,
+        payment_method: PaymentMethod.value,
         check_num: Number(CheckNum.value),
-        amount: Number(Amount.value),
-        payment_method: PaymentMethod.value
+        amount: Number(Amount.value)
     }
 
   await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
@@ -226,13 +239,19 @@ async function postOrder(){
       'Content-Type': 'application/json'
       },
       body: JSON.stringify(json)})
-      .then( response => response.json())
-      .then(json => returnedJSON.value = json)
+      .then(response => {Status.value =response.status;return response.json()})
+      .then(json => ReturnedJSON.value = json)
     
-    Orders.value.push(returnedJSON.value)
-    //update the local order var instead of going to eventually consistent DynamoDB
-    //GSI doesnt support consistent read (ie "read after write")
-    //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
+    if (Status.value == 200) {
+      PrevName.value = Fname.value + " " + Lname.value
+      //RecordNum.value++ 
+      //Orders.value.push({"record_num":RecordNum.value})
+      //update the local order var instead of going to eventually consistent DynamoDB
+      //GSI doesnt support consistent read (ie "read after write")
+      //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
+      
+    }
+    
 
 }
 </script>
@@ -240,9 +259,9 @@ async function postOrder(){
 <template>
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
-<br>
-<div class="success" v-if="status == 200">Order saved!</div>
-<div class="error" v-else-if="status >= 400">Record was not saved! {{ returnedJSON }}</div>
+<br> 
+<div class="success" v-if="Status == 200">Order {{PrevName}} saved !</div>
+<div class="error" v-else-if="Status >= 400">Record was not saved! {{ ReturnedJSON }}</div>
 <br>
 <div class="container-main">
     <div>Job Name</div>
