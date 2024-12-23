@@ -6,24 +6,35 @@ import states from '../states.json'
 const status = ref()
 const returnedJSON = ref()
 const Jobs = ref([])
-const orders = ref([])
+const Order = ref()
+const SelectedInstrument = ref()
+const SelectedPictureNum = ref()
+const Orders = ref([])
 const JobId = ref()
 const RecordNum = ref(0)
+
 const GroupPictureNumOptions = ref(["B1","C1","JE1","O1","WC1","VJ1"])
 const GroupPictureNum = ref()
 const Groups = ref([])
-const CreatedAt = ref()
+
 const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
 const [Group,GroupQuantity,CheckNum,PaymentMethod] = [ref(),ref(),ref(),ref()]
 
 const Instruments = ref([])
 
-const [WoodwindQuantity,BrassQuantity,PercussionQuantity,StringsQuantity,VoiceQuantity] = [ref(),ref(),ref(),ref(),ref()]
-const [WoodwindInstrument,BrassInstrument,PercussionInstrument,StringsInstrument,VoiceInstrument] = [ref(),ref(),ref(),ref(),ref()]
-const [WoodwindPosition,BrassPosition,PercussionPosition,StringsPosition,VoicePosition] = [ref(),ref(),ref(),ref(),ref()]
 const Positions = ref(["","1st","2nd","3rd"])
-const [WoodwindPictureNum,BrassPictureNum,PercussionPictureNum,StringsPictureNum,VoicePictureNum] = [ref(),ref(),ref(),ref(),ref()]
 const [WoodwindInstruments,BrassInstruments,PercussionInstruments,StringsInstruments,VoiceInstruments]=  [ref([]),ref([]),ref([]),ref([]),ref([])]
+
+const CreatedAt = ref()
+
+const SectionMap = ref({
+  woodwind: {quantity: "",instrument:"",position:"",picture_num:""},
+  brass:{quantity: "",instrument:"",position:"",picture_num:""},
+  percussion:{quantity: "",instrument:"",position:"",picture_num:""},
+  strings:{quantity: "",instrument:"",position:"",picture_num:""},
+  voice:{quantity: "",instrument:"",position:"",picture_num:""}
+})
+
 
 // on fresh page load
 if (!Jobs.value.length){
@@ -71,12 +82,12 @@ function loadInstruments(){
 }
 //important function- it's called when user selects the job, it pulls all the orders
 //treat the orders ref like a ro cache and call this func when the DB is updated
-async function getOrdersFromDB(){ 
+async function getOrdersFromAPI(){ 
   await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
     JobId.value +'/orders')
     .then(response => response.json())
-    .then(data => {orders.value=data;return orders;})
-    .then(orders => RecordNum.value=orders.value.length)
+    .then(data => {Orders.value=data;return Orders;})
+    .then(Orders => RecordNum.value=Orders.value.length)
   
   getYearInfo()
   getGroupsFromAPI()
@@ -105,62 +116,44 @@ async function updateStateFromZipCode(){
 }
 
 function fillInForm(){
-  let order = orders.value[RecordNum.value-1]
-  console.log(order)
+  Order.value = Orders.value[RecordNum.value-1]
+  console.log(Order.value)
   //left side are the v-model variable names
   //right side are the api json field names
-  Fname.value=order.fname
-  Lname.value=order.lname
-  Address.value=order.address
-  City.value=order.city
-  State.value=order.state
-  Zip.value=order.zip
-  PhoneNum.value=order.phone
-  Group.value=order.group
-  GroupQuantity.value=order.group_quantity
-  GroupPictureNum.value=order.group_picture_num
-  CheckNum.value=order.check_num
-  Amount.value=order.value
-  PaymentMethod.value=order.payment_method
+  Fname.value=Order.value.fname
+  Lname.value=Order.value.lname
+  Address.value=Order.value.address
+  City.value=Order.value.city
+  State.value=Order.value.state
+  Zip.value=Order.value.zip
+  PhoneNum.value=Order.value.phone
+  Group.value=Order.value.group
+  GroupQuantity.value=Order.value.group_quantity
+  GroupPictureNum.value=Order.value.group_picture_num
+  CheckNum.value=Order.value.check_num
+  Amount.value=Order.value.amount
+  PaymentMethod.value=Order.value.payment_method
   
-  CreatedAt.value=new Date(order.CreatedAt).toDateString()
-  
-  const section = order.section
-  if (section.name == "woodwind"){
-    WoodwindQuantity.value=section.quantity
-    WoodwindInstrument.value=section.instrument
-    WoodwindPosition.value=section.position
-    WoodwindPictureNum.value=section.picture_num
-  } else if (section.name == "brass"){
-    BrassQuantity.value=section.quantity
-    BrassInstrument.value=section.instrument
-    BrassPosition.value=section.position
-    BrassPictureNum.value=section.picture_num
-  } else if (section.name == "percussion"){
-    PercussionQuantity.value=section.quantity
-    PercussionInstrument.value=section.instrument
-    PercussionPosition.value=section.position
-    PercussionPictureNum.value=section.picture_num
-  } else if (section.name == "strings"){
-    StringsQuantity.value=section.quantity
-    StringsInstrument.value=section.instrument
-    StringsPosition.value=section.position
-    StringsPictureNum.value=section.picture_num
-  } else if (section.name == "voice"){
-    VoiceQuantity.value=section.quantity
-    VoiceInstrument.value=section.instrument
-    VoicePosition.value=section.position
-    VoicePictureNum.value=section.picture_num
-  }
+  const section = Order.value.section
+  SelectedInstrument.value= Order.value.section.instrument
+  SelectedPictureNum.value= Order.value.section.picture_num
+
+  SectionMap.value[section.name].quantity=section.quantity 
+  SectionMap.value[section.name].instrument=section.instrument
+  SectionMap.value[section.name].position=section.position
+  SectionMap.value[section.name].picture_num=section.picture_num 
+
+  CreatedAt.value=new Date(Order.value.CreatedAt).toDateString()
 }
 
 function newRecord(){
   resetForm()
-  RecordNum.value=orders.value.length + 1
-  orders.value.push({"record_num":RecordNum.value})
+  RecordNum.value=Orders.value.length + 1
+  Orders.value.push({"record_num":RecordNum.value})
   
 }
 
+//document.getElementById('MainForm').reset() not working :(
 function resetForm(){
   Fname.value=''
   Lname.value=''
@@ -171,9 +164,21 @@ function resetForm(){
   GroupQuantity.value=''
   Group.value=''
   GroupPictureNum.value=''
+  
+  let sectionnames=["woodwind","brass","percussion","strings","voice"]
+  for (let thesection of sectionnames){
+    SectionMap.value[thesection].quantity =''
+    SectionMap.value[thesection].instrument =''
+    SectionMap.value[thesection].position =''
+    SectionMap.value[thesection].picture_num =''  
+  }
+
   PaymentMethod.value=''
   CheckNum.value=''
   Amount.value=''
+
+  CreatedAt.value=''
+  
 }
 
 function getYearInfo(){
@@ -186,6 +191,14 @@ function getYearInfo(){
   }
 }
 async function postOrder(){
+
+  let sectionjson = {
+    instrument: "",
+    name:"",
+    picture_num:"",
+    position:"",
+    quantity:""
+  }
 
   let json = {
         fname: Fname.value,
@@ -200,6 +213,7 @@ async function postOrder(){
         group: Group.value,
         group_quantity: Number(GroupQuantity.value),
         group_picture_num: GroupPictureNum.value,
+        section: sectionjson,
         check_num: Number(CheckNum.value),
         group_quantity:Number(GroupQuantity.value),
         amount: Number(Amount.value),
@@ -216,10 +230,10 @@ async function postOrder(){
       .then( response => response.json())
       .then(json => returnedJSON.value = json)
     
-    orders.value.push(returnedJSON.value)
+    Orders.value.push(returnedJSON.value)
     //update the local order var instead of going to eventually consistent DynamoDB
     //GSI doesnt support consistent read (ie "read after write")
-    //otherwise we would have to call getOrdersFromDB with a gross 2s sleep timer added
+    //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
 
 }
 </script>
@@ -227,32 +241,32 @@ async function postOrder(){
 <template>
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
-<br>
+<br> {{ SectionMap.woodwind }} 
 <div class="success" v-if="status == 200">Order saved!</div>
 <div class="error" v-else-if="status >= 400">Record was not saved! {{ returnedJSON }}</div>
 <br>
 <div class="container-main">
     <div>Job Name</div>
     <div>
-        <select class="purple" v-model="JobId" @change="getOrdersFromDB">
+        <select class="purple" v-model="JobId" @change="getOrdersFromAPI">
         <option
             v-for="job in Jobs"
             v-bind:value="job.id" > {{  job.job_name }}</option>
         </select>
     </div>
-    <div><button v-if="orders.length>0" @click="newRecord()">NEXT RECORD</button></div>
+    <div><button v-if="Orders.length>0" @click="newRecord()">NEXT RECORD</button></div>
     <div></div>
 
     <div>Year</div>
     <div><input class="purple" type="text" size='4' readonly v-model="Year"></div>
     
-    <div v-if="orders.length > 0">Record # 
+    <div v-if="Orders.length > 0">Record # 
         <select v-model="RecordNum" @change="fillInForm">
             <option 
-            v-for="order in orders"
+            v-for="order in Orders"
             v-bind:value="order.record_num" 
             :selected="order.record_num === RecordNum">{{ order.record_num }}</option>
-        </select> of {{ orders.length }}
+        </select> of {{ Orders.length }}
     </div>
     <div v-else>First record</div>
     <div></div>
@@ -344,29 +358,29 @@ async function postOrder(){
 <div>Position</div>
 <div>Picture #</div>
 
-<div><input type="number" min="0" max="99" v-model="WoodwindQuantity"></div>
+<div><input type="number" min="0" max="99" v-model='SectionMap.woodwind.quantity'></div>
 <div>
   <select>
     <option v-for="instrument in WoodwindInstruments"
     v-bind:value="instrument"
-    :selected="instrument === WoodwindInstrument"
+    :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
   </div>
 <div><select>
   <option v-for="position in Positions"
   v-bind:value="position"
-  :selected="position == WoodwindPosition"
+  :selected="position == SectionMap.woodwind.position"
   > {{ position }}</option>
 </select></div>
-<div><select v-model="WoodwindPictureNum"></select></div>
+<div><select></select></div>
 
-<div><input type="number" min="0" max="99" v-model="BrassQuantity"></div>
+<div><input type="number" min="0" max="99" v-model="SectionMap.brass.quantity"></div>
 <div>
   <select>
     <option v-for="instrument in BrassInstruments"
     v-bind:value="instrument"
-    :selected="instrument === BrassInstrument"
+    :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
 </div>
@@ -374,10 +388,10 @@ async function postOrder(){
   <select>
     <option v-for="position in Positions"
   v-bind:value="position"
-  :selected="position == BrassPosition"
+  :selected="position == SectionMap.brass.position"
   > {{ position }}</option>
   </select></div>
-<div><select v-model="BrassPictureNum"></select></div>
+<div><select></select></div>
 
 <div></div>
 <div class="section-percussion">Percussion Section</div>
@@ -397,12 +411,12 @@ async function postOrder(){
 <div>Position</div>
 <div>Picture #</div>
 
-<div><input type="number" min="0" max="99" v-model="PercussionQuantity"></div>
+<div><input type="number" min="0" max="99" v-model="SectionMap.percussion.quantity"></div>
 <div>
   <select>
     <option v-for="instrument in PercussionInstruments"
     v-bind:value="instrument"
-    :selected="instrument === PercussionInstrument"
+    :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
 </div>
@@ -410,26 +424,26 @@ async function postOrder(){
   <select>
     <option v-for="position in Positions"
   v-bind:value="position"
-  :selected="position == PercussionPosition"
+  :selected="position == SectionMap.percussion.position"
   > {{ position }}</option>
   </select></div>
-<div><select v-model="PercussionPictureNum"></select></div>
+<div><select></select></div>
 
-<div><input type="number" min="0" max="99" v-model="StringsQuantity"></div>
+<div><input type="number" min="0" max="99" v-model="SectionMap.strings.quantity"></div>
 <div>
   <select>
     <option v-for="instrument in StringsInstruments"
     v-bind:value="instrument"
-    :selected="instrument === StringsInstrument"
+    :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
 </div>
-<div><select v-model="StringsPosition"></select></div>
+<div><select></select></div>
 <div>
   <select>
     <option v-for="position in Positions"
   v-bind:value="position"
-  :selected="position == StringsPosition"
+  :selected="position == SectionMap.strings.position"
   > {{ position }}</option>
   </select>
 </div>
@@ -461,12 +475,12 @@ async function postOrder(){
 <div>Picture #</div>
 
 
-<div><input type="number" min="0" max="99" v-model="VoiceQuantity"></div>
+<div><input type="number" min="0" max="99" v-model="SectionMap.voice.quantity"></div>
 <div>
   <select>
     <option v-for="instrument in VoiceInstruments"
     v-bind:value="instrument"
-    :selected="instrument === VoiceInstrument"
+    :selected="instrument === SelectedInstrument"
     >{{ instrument }}</option>
   </select>
 </div>
@@ -474,11 +488,11 @@ async function postOrder(){
   <select>
     <option v-for="position in Positions"
   v-bind:value="position"
-  :selected="position == VoicePosition"
+  :selected="position == SectionMap.voice.position"
   > {{ position }}</option>
   </select>
 </div>
-<div><select v-model="VoicePictureNum"></select></div>
+<div><select></select></div>
 
 </div>
 
@@ -489,11 +503,11 @@ async function postOrder(){
   <div>Number of pictures in this order</div>
   <div><input type="text" class="purple" size="2" maxlength="2" 
   :value="(GroupQuantity || 0) +
-    (WoodwindQuantity || 0) + 
-    (BrassQuantity || 0) +
-    (PercussionQuantity || 0) +
-    (StringsQuantity || 0) +
-    (VoiceQuantity || 0)"></div>
+    (SectionMap.woodwind.quantity || 0) + 
+    (SectionMap.brass.quantity || 0) +
+    (SectionMap.percussion.quantity || 0) +
+    (SectionMap.strings.quantity || 0) +
+    (SectionMap.voice.quantity || 0)"></div>
   <div><button @click="postOrder">Update/Add</button></div>
   <div></div>
 </div>
