@@ -197,6 +197,10 @@ function newRecord(){
 
 //document.getElementById('MainForm').reset() not working :(
 function resetForm(){
+  
+  //this one is our hidden element used for updating DB
+  OrderId.value=''
+  
   Fname.value=''
   Lname.value=''
   Address.value=''
@@ -231,7 +235,55 @@ function getYearInfo(){
     }
   }
 }
-async function postOrder(){
+
+async function postOrder(json){
+
+  
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(json)})
+      .then(response => {Status.value =response.status;return response.json()})
+      .then(json => ReturnedJSON.value = json)
+    
+  if (Status.value == 200) {
+    PrevName.value = Fname.value + " " + Lname.value
+    Orders.value.push(ReturnedJSON.value)
+      
+    //update the local order var instead of going to eventually consistent DynamoDB
+    //GSI doesnt support consistent read (ie "read after write")
+    //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
+    //console.log("UPDATED Order count: " + Orders.value.length)
+    }
+    
+
+}
+
+async function patchOrder(json){
+
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders/'+ OrderId.value, {
+    method: "PATCH",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(json)})
+      .then(response => {Status.value =response.status;return response.json()})
+      .then(json => ReturnedJSON.value = json)
+  
+  if (Status.value == 200) {
+    PrevName.value = Fname.value + " " + Lname.value
+    //to do fix orders-Orders.value.push(ReturnedJSON.value)
+    getOrdersFromAPI()
+  }
+  
+
+}
+
+function UpdateOrPatchOrder(){
 
   let sectionjson = {}
 
@@ -268,30 +320,12 @@ async function postOrder(){
         amount: Number(Amount.value)
     }
 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
-    method: "post",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(json)})
-      .then(response => {Status.value =response.status;return response.json()})
-      .then(json => ReturnedJSON.value = json)
-    
-    if (Status.value == 200) {
-      PrevName.value = Fname.value + " " + Lname.value
-      console.log("RETURNED JSON:"+ ReturnedJSON.value)
-      Orders.value.push(ReturnedJSON.value)
-      
-      //update the local order var instead of going to eventually consistent DynamoDB
-      //GSI doesnt support consistent read (ie "read after write")
-      //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
-      //console.log("UPDATED Order count: " + Orders.value.length)
-      console.log("DISPLAY ORDERS:"+ DisplayOrders.value.length)
-      console.log("REAL ORDERS:"+ Orders.value.length)
-    }
-    
 
+  if (!OrderId.value){
+    postOrder(json)
+  } else{
+    patchOrder(json)
+  }
 }
 </script>
 
@@ -543,7 +577,7 @@ async function postOrder(){
     (SectionMap.percussion.quantity || 0) +
     (SectionMap.strings.quantity || 0) +
     (SectionMap.voice.quantity || 0)"></div>
-  <div><button @click="postOrder">Update/Add</button></div>
+  <div><button @click="UpdateOrPatchOrder">Update/Add</button></div>
   <div></div>
 </div>
 
