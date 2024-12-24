@@ -90,6 +90,13 @@ function loadInstruments(){
       VoiceInstruments.value.push(instrument.instrument_name)
     }
   }
+
+  WoodwindInstruments.value.sort()
+  BrassInstruments.value.sort()
+  PercussionInstruments.value.sort()
+  StringsInstruments.value.sort()
+  VoiceInstruments.value.sort()
+
 }
 //important function- it's called when user selects the job, it pulls all the orders
 //treat the orders ref like a ro cache and call this func when the DB is updated
