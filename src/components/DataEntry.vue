@@ -19,7 +19,7 @@ const SelectedPictureNum = ref()
 const [Orders,DisplayOrders] = [ref([]),ref([])]
 const [RecordNum] = [ref(0)]
 const JobId = ref()
-
+const OrderId =ref()
 
 const GroupPictureNumOptions = ["B1","C1","JE1","O1","WC1","VJ1"]
 const GroupPictureNum = ref()
@@ -130,10 +130,19 @@ async function updateStateFromZipCode(){
 function fillInForm(){
   resetForm()
 
+  // Orders array starts at 0 but RecordNum starts at index 1
+  // so subtract 1 from RecordNum
   Order.value = Orders.value[RecordNum.value-1]
+
+  if (Order.value == null){
+    //this is probably the empty record you created
+    //by click NEXT RECORD
+    return
+  }
   console.log(Order.value)
   //left side are the v-model variable names
   //right side are the api json field names
+  OrderId.value=Order.value.id
   Fname.value=Order.value.fname
   Lname.value=Order.value.lname
   Address.value=Order.value.address
@@ -292,7 +301,7 @@ async function postOrder(){
 <br> 
 <div class="success" v-if="Status == 200">Order {{PrevName}} saved !</div>
 <div class="error" v-else-if="Status >= 400">Record was not saved! {{ ReturnedJSON }}</div>
-<br> {{ RecordNum }}
+<br> <input type="hidden" v-model="OrderId">
 <div class="container-main">
     <div>Job Name</div>
     <div>
@@ -300,7 +309,7 @@ async function postOrder(){
         <option v-for="job in Jobs" :value="job.id" > {{  job.job_name }}</option>
         </select>
     </div>
-    <div><button v-if="Orders.length>0" @click="newRecord()">NEXT RECORD</button></div>
+    <div><button v-if="Orders.length>0 && RecordNum >= Orders.length" @click="newRecord()">NEXT RECORD</button></div>
     <div></div>
 
     <div>Year</div>
