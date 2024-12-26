@@ -15,7 +15,7 @@ const Jobs = ref([])
 const Order = ref()
 const SelectedInstrument = ref()
 const SelectedPictureNum = ref()
-const OrderMap=ref({})
+
 const [Orders,DisplayOrders] = [ref([]),ref([])]
 const [RecordNum] = [ref(0)]
 const JobId = ref()
@@ -114,7 +114,7 @@ async function getOrdersFromAPI(){
     headers: { 'x-session-id': sessionStorage.getItem("session-id") }
   })
     .then(response => response.json())
-    .then(data => {Orders.value=data;populateOrderMap();return Orders;})
+    .then(data => {Orders.value=data;return Orders;})
     .then(Orders => RecordNum.value=Orders.value.length)
   
   DisplayOrders.value=JSON.parse(JSON.stringify(Orders.value))
@@ -129,12 +129,6 @@ async function getOrdersFromAPI(){
 
 }
 
-function populateOrderMap(){
-  for (let i in Orders.value){
-    OrderMap.value[Orders.value[i].record_num] = Orders.value[i] 
-  }
-
-}
 
 async function getGroupsFromAPI(){
   fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups', {
@@ -161,7 +155,7 @@ function fillInForm(){
 
   // Orders array starts at 0 but RecordNum starts at index 1
   // so subtract 1 from RecordNum
-  Order.value = OrderMap.value[RecordNum.value]
+  Order.value = Orders.value[RecordNum.value-1]
 
   if (Order.value == null){
     //this is probably the empty record you created
@@ -282,7 +276,7 @@ async function postOrder(json){
   if (Status.value == 200) {
     PrevName.value = Fname.value + " " + Lname.value
     Orders.value.push(ReturnedJSON.value)
-      
+    DisplayOrders.value=JSON.parse(JSON.stringify(Orders.value)) 
     //update the local order var instead of going to eventually consistent DynamoDB
     //GSI doesnt support consistent read (ie "read after write")
     //otherwise we would have to call getOrdersFromAPI with a gross 2s sleep timer added
