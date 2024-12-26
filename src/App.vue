@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import Topnav from './components/Header.vue'
 import DataEntry from './components/DataEntry.vue'
 import DeleteRecords from './components/DeleteRecords.vue'
+import ShippingLabels from './components/ShippingLabels.vue'
 import NotFound from './components/NotFound.vue'
 
 
@@ -61,7 +62,8 @@ function handleLoginFail(){
 const routes = {
   'data-entry': DataEntry,
   '/': DataEntry,
-  'delete-records': DeleteRecords
+  'delete-records': DeleteRecords,
+  'shipping-labels':ShippingLabels
 
 }
 

@@ -127,6 +127,8 @@ async function getOrdersFromAPI(){
     RecordNum.value = 1
   }
 
+  sessionStorage.setItem("last-selected-job-id",JobId.value)
+
 }
 
 
