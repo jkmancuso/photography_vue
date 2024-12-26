@@ -3,8 +3,11 @@ import { ref, computed } from 'vue'
 import Topnav from './components/Header.vue'
 import DataEntry from './components/DataEntry.vue'
 import NotFound from './components/NotFound.vue'
-const loggedIn =ref(false)
 
+
+// by default on page load you are not logged in 
+const loggedIn =ref(false)
+// but if you have a valid session id in your browser local storage then you are good
 if (sessionStorage.getItem("session-id")){
   if (sessionStorage.getItem("expire-at") > Math.round(new Date().getTime() / 1000) ){
     loggedIn.value=true
@@ -17,6 +20,7 @@ const ReturnedJSON = ref()
 const ResponseHeaders= ref()
 const Email =ref()
 const Password=ref()
+const LoginErr = ref()
 
 async function postAuth(json){
 
@@ -36,20 +40,22 @@ async function postAuth(json){
       .then(json => ReturnedJSON.value = json)
     
   if (Status.value == 200) {
-    handleOK()
+    handleLoginOK()
+    } else{
+    handleLoginFail()
     }
   
 
 }
 
-function handleOK(){
-  console.log(Status.value)
-      console.log(ReturnedJSON.value)
-      console.log(ResponseHeaders.value)
+function handleLoginOK(){
 
       sessionStorage.setItem("session-id",ReturnedJSON.value.id)
       sessionStorage.setItem("expire-at",ReturnedJSON.value.expire_at)
       loggedIn.value=true
+} 
+function handleLoginFail(){
+  LoginErr.value="Unable to login: "+ ReturnedJSON.value.message
 }
 
 const routes = {
@@ -90,16 +96,23 @@ const currentView = computed(() => {
 <br>
   <button @click="postAuth" type="submit" class="btn btn-primary">Submit</button>
 </div>
- 
+ <div class="error">{{ LoginErr }}</div>
   <component :is="currentView"  v-if="loggedIn"/>
 
 </template>
 
 <style scoped>
+
 .container {
     
     width: 50%;
     text-align: center;    
   
   }
+  .error{
+  color: red;
+  font-weight: bold;
+  font-size: large;
+  text-align: center;
+}
 </style>
