@@ -58,14 +58,21 @@ if (!Instruments.value.length){
 }    
 
 async function fetchJobsFromAPI(){
-  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs')
+  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs', 
+   {
+    method:"GET",
+    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+  })
     .then( response => response.json())
     .then(data=> Jobs.value = data)
 
 }
 
 async function fetchInstrumentsFromAPI(){
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments')
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments', {
+    method:"GET",
+    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+  })
     .then( response => response.json())
     .then(data=> Instruments.value = data)
     
@@ -102,7 +109,10 @@ function loadInstruments(){
 //treat the orders ref like a ro cache and call this func when the DB is updated
 async function getOrdersFromAPI(){ 
   await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
-    JobId.value +'/orders')
+    JobId.value +'/orders', {
+    method:"GET",
+    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+  })
     .then(response => response.json())
     .then(data => {Orders.value=data;return Orders;})
     .then(Orders => RecordNum.value=Orders.value.length)
@@ -121,7 +131,10 @@ async function getOrdersFromAPI(){
 
 
 async function getGroupsFromAPI(){
-  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups')
+  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups', {
+    method:"GET",
+    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+  })
       .then(response => response.json())
       .then(data => Groups.value=data)
 }
@@ -129,7 +142,10 @@ async function getGroupsFromAPI(){
 
 async function updateStateFromZipCode(){
   fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/zipcodes/' + 
-      Zip.value)
+      Zip.value, {
+    method:"GET",
+    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+  })
       .then(response => response.json())
       .then(data => {State.value=data.state;City.value=data.city})
 }
@@ -250,7 +266,8 @@ async function postOrder(json){
     method: "POST",
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Session-id': sessionStorage.getItem("session-id")
       },
       body: JSON.stringify(json)})
       .then(response => {Status.value =response.status;return response.json()})
@@ -275,7 +292,8 @@ async function patchOrder(json){
     method: "PATCH",
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Session-id': sessionStorage.getItem("session-id")
       },
       body: JSON.stringify(json)})
       .then(response => {Status.value =response.status;return response.json()})

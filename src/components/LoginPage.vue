@@ -9,30 +9,36 @@ const Password=ref()
 
 async function postAuth(json){
 
-json={
-    email: Email.value,
-    password:Password.value
+  json={
+      email: Email.value,
+      password:Password.value
+  }
+
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/auth', {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(json)})
+      .then(response => {Status.value =response.status; return response.json()})
+      .then(json => ReturnedJSON.value = json)
+    
+  if (Status.value == 200) {
+    handleOK()
+    }
+  
+
 }
 
-await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/auth', {
-  method: "POST",
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(json)})
-    .then(response => {Status.value =response.status; console.log(response.headers.get("set-cookie")); return response.json()})
+function handleOK(){
+  console.log(Status.value)
+      console.log(ReturnedJSON.value)
+      console.log(ResponseHeaders.value)
 
-//    .then(response => {Status.value =response.status;response.headers.forEach((value, key) => {console.log(`${key} ==> ${value}`);}) ; return response.json()})
-    .then(json => ReturnedJSON.value = json)
-  
-if (Status.value == 200) {
-    console.log(Status.value)
-    console.log(ReturnedJSON.value)
-    console.log(ResponseHeaders.value)    
-  }
-  
-
+      sessionStorage.setItem("session-id",ReturnedJSON.value.id)
+      sessionStorage.setItem("expire-at",ReturnedJSON.value.expire_at)
+      window.location.replace("/#data-entry")
 }
 </script>
 

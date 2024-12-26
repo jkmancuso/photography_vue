@@ -16,11 +16,12 @@ window.addEventListener('hashchange', () => {
   currentPath.value = window.location.hash
 })
 
+const loggedIn =ref()
+loggedIn.value =sessionStorage.getItem("session-id")
 
-const currentView = computed(() => {
-  return routes[currentPath.value.slice(1) || '/'] || NotFound
-})
-
+const currentView = computed(() => 
+  {return loggedIn ? routes[currentPath.value.slice(1) || '/'] : routes['login-page']}
+)
 
 </script>
 
