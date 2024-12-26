@@ -2,8 +2,7 @@
 <template>
 <div class="container-header">
     <div class="new-record"><a href="/#data-entry">Main<br>Screen</a></div>
-    <div class="prev-record">Previous<br>Record</div>
-    <div class="delete-record">Delete<br>Record</div>
+    <div class="delete-record"><a href="/#delete-records">Delete<br>Records</a></div>
     <div class="shipping-labels">Shipping<br>Labels</div>
     <div class="spreadsheet-count">Spreadsheet<br>Count</div>
     <div class="clear-screen">Clear/Main<br>Screen</div>

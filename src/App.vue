@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import Topnav from './components/Header.vue'
 import DataEntry from './components/DataEntry.vue'
+import DeleteRecords from './components/DeleteRecords.vue'
 import NotFound from './components/NotFound.vue'
 
 
@@ -59,7 +60,9 @@ function handleLoginFail(){
 
 const routes = {
   'data-entry': DataEntry,
-  '/': DataEntry
+  '/': DataEntry,
+  'delete-records': DeleteRecords
+
 }
 
 const currentPath = ref(window.location.hash)
