@@ -5,6 +5,13 @@ import DataEntry from './components/DataEntry.vue'
 import NotFound from './components/NotFound.vue'
 
 
+const Status = ref()
+const ReturnedJSON = ref()
+const ResponseHeaders= ref()
+const Email =ref()
+const Password=ref()
+const LoginErr = ref()
+
 // by default on page load you are not logged in 
 const loggedIn =ref(false)
 // but if you have a valid session id in your browser local storage then you are good
@@ -13,14 +20,6 @@ if (sessionStorage.getItem("session-id")){
     loggedIn.value=true
   }
 }
-
-
-const Status = ref()
-const ReturnedJSON = ref()
-const ResponseHeaders= ref()
-const Email =ref()
-const Password=ref()
-const LoginErr = ref()
 
 async function postAuth(json){
 
@@ -40,20 +39,20 @@ async function postAuth(json){
       .then(json => ReturnedJSON.value = json)
     
   if (Status.value == 200) {
-    handleLoginOK()
-    } else{
+    handleLoginOK()  
+  } else{
     handleLoginFail()
-    }
+  }
   
-
 }
 
 function handleLoginOK(){
 
-      sessionStorage.setItem("session-id",ReturnedJSON.value.id)
-      sessionStorage.setItem("expire-at",ReturnedJSON.value.expire_at)
-      loggedIn.value=true
-} 
+  sessionStorage.setItem("session-id",ReturnedJSON.value.id)
+  sessionStorage.setItem("expire-at",ReturnedJSON.value.expire_at)
+  loggedIn.value=true
+}
+
 function handleLoginFail(){
   LoginErr.value="Unable to login: "+ ReturnedJSON.value.message
 }
@@ -69,11 +68,9 @@ window.addEventListener('hashchange', () => {
   currentPath.value = window.location.hash
 })
 
-
 const currentView = computed(() => {
   return routes[currentPath.value.slice(1) || '/'] || NotFound
 })
-
 
 </script>
 
