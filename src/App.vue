@@ -5,6 +5,12 @@ import DataEntry from './components/DataEntry.vue'
 import NotFound from './components/NotFound.vue'
 const loggedIn =ref(false)
 
+if (sessionStorage.getItem("session-id")){
+  if (sessionStorage.getItem("expire-at") > Math.round(new Date().getTime() / 1000) ){
+    loggedIn.value=true
+  }
+}
+
 
 const Status = ref()
 const ReturnedJSON = ref()
