@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
+const props = defineProps(['standardHeaders','APIBaseUrl'])
+
 const WoodwindInputRef = ref([])
 const PercussionInputRef = ref([])
 const BrassInputRef = ref([])
@@ -24,11 +26,6 @@ const NewStrings =ref()
 const NewPercussion =ref()
 const NewVoice =ref()
 
-let defaultHeaders = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'X-Session-id': sessionStorage.getItem("session-id")
-}
 
 // on fresh page load
 if (!Instruments.value.length){
@@ -49,10 +46,10 @@ async function fetchGroupsFromApi(){
 }
 
 async function fetchFromAPI(type, obj) {
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/'+type, 
+  await fetch(props.APIBaseUrl+type, 
      {
       method:"GET",
-      headers: defaultHeaders
+      headers: props.standardHeaders
     })
       .then( response => response.json())
       .then(data=> obj.value = data)  
@@ -109,16 +106,15 @@ async function updateInstrument(instrumentid, name){
     APImethod='DELETE'
     APIBody=''
   }
-    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments/' +
-    instrumentid, {
+  await fetch(props.APIBaseUrl+'instruments/' + instrumentid, {
     method: APImethod,
     body: APIBody,
-    headers: defaultHeaders
+    headers: props.standardHeaders
   })
     .then(response => response.json())
     .then(data => {console.log(data)})
 
-    fetchInstrumentsFromApi()
+  fetchInstrumentsFromApi()
 }
 
 async function updateGroup(groupid, name){
@@ -131,12 +127,11 @@ async function updateGroup(groupid, name){
     APIBody=''
   }
 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups/' +
-    groupid, {
-      method: APImethod,
-      body: APIBody,
-      headers: defaultHeaders
-      })
+  await fetch(props.APIBaseUrl+'groups/' + groupid, {
+    method: APImethod,
+    body: APIBody,
+    headers: props.standardHeaders
+    })
     .then(response => response.json())
     .then(data => {console.log(data)})
 
@@ -145,10 +140,10 @@ async function updateGroup(groupid, name){
 
 async function AddInstrument(instrumentname, instrumentsection){
 
-await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments',{
+  await fetch(props.APIBaseUrl+'instruments',{
     method: "POST",
     body: JSON.stringify({instrument_name: instrumentname, section: instrumentsection}),
-    headers: defaultHeaders
+    headers: props.standardHeaders
     })
   .then(response => response.json())
   .then(data => {console.log(data)})
@@ -159,10 +154,10 @@ await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instrumen
 
 async function AddGroup(){
 
-await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups',{
+await fetch(props.APIBaseUrl+'groups',{
     method: "POST",
     body: JSON.stringify({group_name: NewGroup.value}),
-    headers: defaultHeaders
+    headers: props.standardHeaders
     })
   .then(response => response.json())
   .then(data => {console.log(data)})

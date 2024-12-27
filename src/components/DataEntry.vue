@@ -8,6 +8,7 @@ import percussion_pictures from '../percussion_pictures.json'
 import strings_pictures from '../strings_pictures.json'
 import voice_pictures from '../voice_pictures.json'
 
+const props = defineProps(['standardHeaders','APIBaseUrl'])
 
 const Status = ref()
 const ReturnedJSON = ref()
@@ -46,7 +47,7 @@ const SectionMap = ref({
   voice:{quantity: "",instrument:"",position:"",picture_num:""}
 })
 
-
+console.log(props.standardHeaders)
 // on fresh page load
 if (!Jobs.value.length){
   fetchJobsFromAPI()  
@@ -58,10 +59,10 @@ if (!Instruments.value.length){
 }    
 
 async function fetchJobsFromAPI(){
-  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs', 
+  fetch(props.APIBaseUrl+'jobs', 
    {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
     .then( response => response.json())
     .then(data=> Jobs.value = data)
@@ -69,9 +70,9 @@ async function fetchJobsFromAPI(){
 }
 
 async function fetchInstrumentsFromAPI(){
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments', {
+  await fetch(props.APIBaseUrl + 'instruments', {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
     .then( response => response.json())
     .then(data=> Instruments.value = data)
@@ -108,10 +109,9 @@ function loadInstruments(){
 //important function- it's called when user selects the job, it pulls all the orders
 //treat the orders ref like a ro cache and call this func when the DB is updated
 async function getOrdersFromAPI(){ 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
-    JobId.value +'/orders', {
+  await fetch(props.APIBaseUrl+'jobs/' + JobId.value +'/orders', {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
     .then(response => response.json())
     .then(data => {Orders.value=data;return Orders;})
@@ -133,9 +133,9 @@ async function getOrdersFromAPI(){
 
 
 async function getGroupsFromAPI(){
-  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups', {
+  fetch(props.APIBaseUrl+'groups', {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
       .then(response => response.json())
       .then(data => Groups.value=data)
@@ -143,13 +143,12 @@ async function getGroupsFromAPI(){
 
 
 async function updateStateFromZipCode(){
-  fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/zipcodes/' + 
-      Zip.value, {
+  fetch(props.APIBaseUrl + 'zipcodes/' + Zip.value, {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
-      .then(response => response.json())
-      .then(data => {State.value=data.state;City.value=data.city})
+    .then(response => response.json())
+    .then(data => {State.value=data.state;City.value=data.city})
 }
 
 function fillInForm(){
@@ -264,16 +263,13 @@ function getYearInfo(){
 async function postOrder(json){
 
   
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders', {
+  await fetch(props.APIBaseUrl + 'orders', {
     method: "POST",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'X-Session-id': sessionStorage.getItem("session-id")
-      },
-      body: JSON.stringify(json)})
-      .then(response => {Status.value =response.status;return response.json()})
-      .then(json => ReturnedJSON.value = json)
+    headers: props.standardHeaders,
+    body: JSON.stringify(json)
+    })
+    .then(response => {Status.value =response.status;return response.json()})
+    .then(json => ReturnedJSON.value = json)
     
   if (Status.value == 200) {
     PrevName.value = Fname.value + " " + Lname.value
@@ -290,16 +286,12 @@ async function postOrder(json){
 
 async function patchOrder(json){
 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/orders/'+ OrderId.value, {
+  await fetch(props.APIBaseUrl+'orders/'+ OrderId.value, {
     method: "PATCH",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'X-Session-id': sessionStorage.getItem("session-id")
-      },
-      body: JSON.stringify(json)})
-      .then(response => {Status.value =response.status;return response.json()})
-      .then(json => ReturnedJSON.value = json)
+    headers: props.standardHeaders,
+    body: JSON.stringify(json)})
+    .then(response => {Status.value =response.status;return response.json()})
+    .then(json => ReturnedJSON.value = json)
   
   if (Status.value == 200) {
     PrevName.value = Fname.value + " " + Lname.value

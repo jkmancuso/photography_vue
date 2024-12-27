@@ -1,16 +1,18 @@
 <script setup>
 import { ref } from 'vue'
 
+const props = defineProps(['standardHeaders','APIBaseUrl'])
+
 const Name = ref()
 const Year= ref()
 const ReturnedJSON = ref()
 const Status =ref()
 
 async function postNewJob(){  
-    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs', {
+    await fetch(props.APIBaseUrl + 'jobs', {
     method:"POST",
     body: JSON.stringify({job_name: Name.value,job_year: Number(Year.value)}),
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
     .then(response => {Status.value=response.status; return response.json()})
     .then(data => {ReturnedJSON.value=data;console.log(data)})

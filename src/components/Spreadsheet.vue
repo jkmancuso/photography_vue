@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
+const props = defineProps(['standardHeaders','APIBaseUrl'])
+
 const Jobs = ref([])
 const JobId = ref()
 const Orders = ref([])
@@ -19,10 +21,9 @@ if (!gotJobIdFromSession.value){
 
 async function fetchJobsFromAPI(){
 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs', 
-   {
+  await fetch(props.APIBaseUrl+'jobs', {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
     .then( response => response.json())
     .then(data=> Jobs.value = data)
@@ -30,10 +31,9 @@ async function fetchJobsFromAPI(){
 }
 
 async function getOrdersFromAPI(){ 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
-    JobId.value +'/orders', {
+  await fetch(props.APIBaseUrl+'jobs/' + JobId.value +'/orders', {
     method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
+    headers: props.standardHeaders
   })
     .then(response => response.json())
     .then(data => {Orders.value=data;return Orders;})

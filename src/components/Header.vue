@@ -2,13 +2,12 @@
 <template>
 <div class="container-header">
     <div class="new-record"><a href="/#data-entry">Main<br>Screen</a></div>
-    <div class="delete-record"><a href="/#delete-records">Delete<br>Records</a></div>
+    <div class="delete-record"><a href="/#delete-records">Delete<br>Record / Job</a></div>
     <div class="shipping-labels"><a href="/#shipping-labels">Shipping<br>Labels</a></div>
     <div class="spreadsheet-count"><a href="/#ss">Spreadsheet<br>Count</a></div>
     <div class="create-job"><a href="/#create-job">Create<br>Job</a></div>
     <div class="modify-items"><a href="/#modify-items">Modify<br>Items</a></div>
     <div class="instrument-count"><a href="/#count">Instrument/Group<br>Count</a></div>
-    <div class="delete-job">Delete<br>A Job</div>
 </div>
 </template>
 

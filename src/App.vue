@@ -17,6 +17,13 @@ const Email =ref()
 const Password=ref()
 const LoginErr = ref()
 
+let APIBaseUrl="https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/"
+let standardHeaders = { 
+   'Accept': 'application/json',
+   'Content-Type': 'application/json',
+   'x-session-id': sessionStorage.getItem("session-id")
+  }
+
 // by default on page load you are not logged in 
 const loggedIn =ref(false)
 // but if you have a valid session id in your browser local storage then you are good
@@ -33,7 +40,7 @@ async function postAuth(json){
       password:Password.value
   }
 
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/auth', {
+  await fetch(APIBaseUrl +'auth', {
     method: "POST",
     headers: {
       'Accept': 'application/json',
@@ -106,7 +113,11 @@ const currentView = computed(() => {
   <button @click="postAuth" type="submit" class="btn btn-primary">Submit</button>
 </div>
  <div class="error">{{ LoginErr }}</div>
-  <component :is="currentView"  v-if="loggedIn"/>
+  <component :is="currentView"  
+    v-if="loggedIn" 
+    :standardHeaders="standardHeaders"
+    :APIBaseUrl="APIBaseUrl"
+    />
 
 </template>
 
