@@ -102,10 +102,17 @@ function resetInstruments(){
 
 async function updateInstrument(instrumentid, name){
 
+  let APImethod='PATCH'
+  let APIBody=JSON.stringify({instrument_name: name})
+  
+  if(name ==''){
+    APImethod='DELETE'
+    APIBody=''
+  }
     await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments/' +
     instrumentid, {
-    method: "PATCH",
-    body: JSON.stringify({instrument_name: name}),
+    method: APImethod,
+    body: APIBody,
     headers: defaultHeaders
   })
     .then(response => response.json())
@@ -116,14 +123,24 @@ async function updateInstrument(instrumentid, name){
 
 async function updateGroup(groupid, name){
 
+  let APImethod='PATCH'
+  let APIBody=JSON.stringify({group_name: name})
+  
+  if(name ==''){
+    APImethod='DELETE'
+    APIBody=''
+  }
+
   await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups/' +
     groupid, {
-      method: "PATCH",
-      body: JSON.stringify({group_name: name}),
+      method: APImethod,
+      body: APIBody,
       headers: defaultHeaders
       })
     .then(response => response.json())
     .then(data => {console.log(data)})
+
+    fetchGroupsFromApi()
 }
 
 async function AddInstrument(instrumentname, instrumentsection){
