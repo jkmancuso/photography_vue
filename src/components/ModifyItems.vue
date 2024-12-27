@@ -28,52 +28,46 @@ if (!Groups.value.length){
   fetchGroupsFromApi() 
 }    
 
-async function fetchInstrumentsFromApi() {
-    
-  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/instruments', 
-   {
-    method:"GET",
-    headers: { 'x-session-id': sessionStorage.getItem("session-id") }
-  })
-    .then( response => response.json())
-    .then(data=> Instruments.value = data)  
+async function fetchGroupsFromApi(){
+  await fetchFromAPI("groups", Groups)
 
-    for (let i in  Instruments.value){
-  
-      if (Instruments.value[i].section == "woodwind"){
-          WoodwindInstruments.value.push(Instruments.value[i])
-          WoodwindInputRef.value.push(Instruments.value[i].instrument_name)
-      } else if (Instruments.value[i].section == "brass") {
-          BrassInstruments.value.push(Instruments.value[i])
-          BrassInputRef.value.push(Instruments.value[i].instrument_name)
-      } else if (Instruments.value[i].section == "percussion") {
-          PercussionInstruments.value.push(Instruments.value[i])
-          PercussionInputRef.value.push(Instruments.value[i].instrument_name)
-      } else if (Instruments.value[i].section == "strings") {
-          StringsInstruments.value.push(Instruments.value[i])
-          StringsInputRef.value.push(Instruments.value[i].instrument_name)
-      } else if (Instruments.value[i].section == "voice") {
-          VoiceInstruments.value.push(Instruments.value[i])
-          VoiceInputRef.value.push(Instruments.value[i].instrument_name)
-      }      
-    }
+  for (let i in  Groups.value){
+          GroupInputRef.value[i] = Groups.value[i].group_name
+      }
 }
 
-async function fetchGroupsFromApi() {
-    
-    await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/groups', 
+async function fetchFromAPI(type, obj) {
+  await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/'+type, 
      {
       method:"GET",
       headers: { 'x-session-id': sessionStorage.getItem("session-id") }
     })
       .then( response => response.json())
-      .then(data=> Groups.value = data)  
+      .then(data=> obj.value = data)  
+}
+
+async function fetchInstrumentsFromApi(){
+  await fetchFromAPI("instruments", Instruments)
   
-      for (let i in  Groups.value){
-          GroupInputRef.value[i] = Groups.value[i].group_name
-  
-      }
+  for (let i in  Instruments.value){
+    if (Instruments.value[i].section == "woodwind"){
+        WoodwindInstruments.value.push(Instruments.value[i])
+        WoodwindInputRef.value.push(Instruments.value[i].instrument_name)
+    } else if (Instruments.value[i].section == "brass") {
+        BrassInstruments.value.push(Instruments.value[i])
+        BrassInputRef.value.push(Instruments.value[i].instrument_name)
+    } else if (Instruments.value[i].section == "percussion") {
+        PercussionInstruments.value.push(Instruments.value[i])
+        PercussionInputRef.value.push(Instruments.value[i].instrument_name)
+    } else if (Instruments.value[i].section == "strings") {
+        StringsInstruments.value.push(Instruments.value[i])
+        StringsInputRef.value.push(Instruments.value[i].instrument_name)
+    } else if (Instruments.value[i].section == "voice") {
+        VoiceInstruments.value.push(Instruments.value[i])
+        VoiceInputRef.value.push(Instruments.value[i].instrument_name)
+    }      
   }
+}
 
 async function updateInstrument(instrumentid, name){
 
