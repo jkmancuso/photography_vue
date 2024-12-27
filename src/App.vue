@@ -7,12 +7,12 @@ import ShippingLabels from './components/ShippingLabels.vue'
 import Spreadsheet from './components/Spreadsheet.vue'
 import CreateJob from './components/CreateJob.vue'
 import ModifyItems from './components/ModifyItems.vue'
+import Count from './components/Count.vue'
 import NotFound from './components/NotFound.vue'
 
 
 const Status = ref()
 const ReturnedJSON = ref()
-const ResponseHeaders= ref()
 const Email =ref()
 const Password=ref()
 const LoginErr = ref()
@@ -69,7 +69,8 @@ const routes = {
   'shipping-labels':ShippingLabels,
   'ss': Spreadsheet,
   'create-job':CreateJob,
-  'modify-items': ModifyItems
+  'modify-items': ModifyItems,
+  'count': Count
 
 }
 
