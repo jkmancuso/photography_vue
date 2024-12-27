@@ -6,7 +6,7 @@
     <div class="shipping-labels"><a href="/#shipping-labels">Shipping<br>Labels</a></div>
     <div class="spreadsheet-count"><a href="/#ss">Spreadsheet<br>Count</a></div>
     <div class="create-job"><a href="/#create-job">Create<br>Job</a></div>
-    <div class="modify-items">Modify<br>Items</div>
+    <div class="modify-items"><a href="/#modify-items">Modify<br>Items</a></div>
     <div class="instrument-count">Instrument/Group<br>Count</div>
     <div class="delete-job">Delete<br>A Job</div>
 </div>

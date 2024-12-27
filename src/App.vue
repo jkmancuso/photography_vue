@@ -6,6 +6,7 @@ import DeleteRecords from './components/DeleteRecords.vue'
 import ShippingLabels from './components/ShippingLabels.vue'
 import Spreadsheet from './components/Spreadsheet.vue'
 import CreateJob from './components/CreateJob.vue'
+import ModifyItems from './components/ModifyItems.vue'
 import NotFound from './components/NotFound.vue'
 
 
@@ -67,7 +68,8 @@ const routes = {
   'delete-records': DeleteRecords,
   'shipping-labels':ShippingLabels,
   'ss': Spreadsheet,
-  'create-job':CreateJob
+  'create-job':CreateJob,
+  'modify-items': ModifyItems
 
 }
 
