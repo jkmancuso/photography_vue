@@ -9,9 +9,20 @@ const gotJobIdFromSession= ref(false)
 
 let GroupMap = new Map()
 let JobNameMap = new Map()
+let InstrumentJSON= {
+  "woodwind":{},
+  "brass":{},
+  "strings":{},
+  "percussion":{},
+  "voice":{}
+}
+
+if (sessionStorage.getItem("last-selected-job-id")){
+  JobId.value=sessionStorage.getItem("last-selected-job-id")
+  getOrdersFromAPI()
+}
 
 fetchJobsFromAPI()  
-   
 
 async function fetchJobsFromAPI(){
 
@@ -23,13 +34,14 @@ async function fetchJobsFromAPI(){
     .then( response => response.json())
     .then(data=> Jobs.value = data)
 
-    for (let i in Jobs.value){
-        JobNameMap.set(Jobs.value[i].id,Jobs.value[i].job_name)
-    }
+  for (let i in Jobs.value){
+    JobNameMap.set(Jobs.value[i].id,Jobs.value[i].job_name)
+  }
     
 }
 
 async function getOrdersFromAPI(){ 
+  
   await fetch('https://ygaqa1m2xf.execute-api.us-east-2.amazonaws.com/v1/jobs/' + 
     JobId.value +'/orders', {
     method:"GET",
@@ -38,15 +50,25 @@ async function getOrdersFromAPI(){
     .then(response => response.json())
     .then(data => {Orders.value=data;return Orders;})
 
-    for (let i in Orders.value){
-        console.log(Orders.value[i].group)
-        if(Orders.value[i].group !=null){
-            GroupMap.set(Orders.value[i].group,Number(Orders.value[i].group_quantity) +1 || 1)
-        }
-        
-    }
+  for (let i in Orders.value){
+    let order=Orders.value[i]
 
-    JobName.value=JobNameMap.get(JobId.value)
+    if(order.group !=null){
+      GroupMap.set(order.group,Number(GroupMap.get(order.group)) +1 || 1)
+    }
+    
+    //section is woodwind, brass, etc
+    let section=order.section.name
+
+    let instrument=order.section.instrument
+
+    if(section != null){
+      let existing_quantity= InstrumentJSON[section][instrument] || 0
+      InstrumentJSON[section][instrument] =existing_quantity +1 
+    }
+  }
+
+  JobName.value=JobNameMap.get(JobId.value)
 
 }
 
@@ -65,12 +87,30 @@ async function getOrdersFromAPI(){
 <div class="small-bold-underline">Job: {{ JobName }}</div>
 <br>
 <div class="small-bold">Groups</div>
-<div v-for="group,i in GroupMap">{{ GroupMap[i]}}</div>
+<div v-for="group in GroupMap">{{ group[0]}}: {{ group[1]}}</div>
+<br>
+<div class="small-bold">Instruments</div>
+<br>
+<div v-for="quantity,instrument in InstrumentJSON.woodwind">
+  <span class="small-bold">woodwind</span> {{ instrument}}: {{quantity}}</div>
+
+<div v-for="quantity,instrument in InstrumentJSON.brass">
+  <span class="small-bold">brass</span> {{ instrument}}: {{quantity}}</div>
+
+<div v-for="quantity,instrument in InstrumentJSON.percussion">
+  <span class="small-bold">percussion</span> {{ instrument}}: {{quantity}}</div>
+
+<div v-for="quantity,instrument in InstrumentJSON.strings">
+  <span class="small-bold">strings</span> {{ instrument}}: {{quantity}}</div>
+        
+<div v-for="quantity,instrument in InstrumentJSON.voice">
+  <span class="small-bold">voice</span> {{ instrument}}: {{quantity}}</div>
+
 </template>
 
 <style>
 
-td,body { font-family: "Verdana";font-size: 8pt }
+body { font-family: "Verdana";font-size: 8pt }
 
 .small-bold-underline{
     text-decoration-line: underline;
