@@ -359,7 +359,7 @@ function UpdateOrPatchOrder(){
 <template>
 <br>
 <div class="main-data-entry">Main Data Entry Screen</div>
-<br> {{ RecordNum }}
+<br> 
 <div class="success" v-if="Status == 200">Order {{PrevName}} saved !</div>
 <div class="error" v-else-if="Status >= 400">Record was not saved! {{ ReturnedJSON }}</div>
 <br> <input type="hidden" v-model="OrderId">

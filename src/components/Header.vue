@@ -4,7 +4,7 @@
     <div class="new-record"><a href="/#data-entry">Main<br>Screen</a></div>
     <div class="delete-record"><a href="/#delete-records">Delete<br>Records</a></div>
     <div class="shipping-labels"><a href="/#shipping-labels">Shipping<br>Labels</a></div>
-    <div class="spreadsheet-count">Spreadsheet<br>Count</div>
+    <div class="spreadsheet-count"><a href="/#ss">Spreadsheet<br>Count</a></div>
     <div class="clear-screen">Clear/Main<br>Screen</div>
     <div class="create-job">Create<br>Job</div>
     <div class="modify-items">Modify<br>Items</div>

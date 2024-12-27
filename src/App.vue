@@ -4,6 +4,7 @@ import Topnav from './components/Header.vue'
 import DataEntry from './components/DataEntry.vue'
 import DeleteRecords from './components/DeleteRecords.vue'
 import ShippingLabels from './components/ShippingLabels.vue'
+import Spreadsheet from './components/Spreadsheet.vue'
 import NotFound from './components/NotFound.vue'
 
 
@@ -63,7 +64,8 @@ const routes = {
   'data-entry': DataEntry,
   '/': DataEntry,
   'delete-records': DeleteRecords,
-  'shipping-labels':ShippingLabels
+  'shipping-labels':ShippingLabels,
+  'ss': Spreadsheet
 
 }
 
