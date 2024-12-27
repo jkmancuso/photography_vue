@@ -5,8 +5,7 @@
     <div class="delete-record"><a href="/#delete-records">Delete<br>Records</a></div>
     <div class="shipping-labels"><a href="/#shipping-labels">Shipping<br>Labels</a></div>
     <div class="spreadsheet-count"><a href="/#ss">Spreadsheet<br>Count</a></div>
-    <div class="clear-screen">Clear/Main<br>Screen</div>
-    <div class="create-job">Create<br>Job</div>
+    <div class="create-job"><a href="/#create-job">Create<br>Job</a></div>
     <div class="modify-items">Modify<br>Items</div>
     <div class="instrument-count">Instrument/Group<br>Count</div>
     <div class="delete-job">Delete<br>A Job</div>
@@ -31,11 +30,9 @@
 }
 
 .new-record{ background-color: #007F00; }
-.prev-record{ background-color: yellow; }
 .delete-record{ background-color: purple; }
 .shipping-labels{ background-color: #00FF00; }
 .spreadsheet-count{ background-color: #3399FF; }
-.clear-screen{ background-color: #C0C0C0; }
 .create-job{ background-color: #E0E0E0; }
 .modify-items{ background-color: #F0F0F0; }
 .instrument-count{ background-color: #F0F0F0; }
