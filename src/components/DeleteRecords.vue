@@ -67,9 +67,9 @@ async function createNewOrderFromApi(rec_num,jobid){
     .then(data => {console.log(data)})
 }
 
-function deleteOrderFromAPI(orderid){
+async function deleteOrderFromAPI(orderid){
   console.log("DELETE ORDER: "+ Date.now())
-  fetch(props.APIBaseUrl + 'orders/' + orderid, {
+  await fetch(props.APIBaseUrl + 'orders/' + orderid, {
     method:"DELETE",
     headers: props.standardHeaders
   })
@@ -81,10 +81,10 @@ const sleep = milliseconds => {
             return new Promise(resolve => setTimeout(resolve, milliseconds));
         };
 
-function deleteJobFromAPI(jobid){
+async function deleteJobFromAPI(jobid){
   
   console.log("DELETE JOB: "+ Date.now())
-  fetch(props.APIBaseUrl + 'jobs/' + jobid, {
+  await fetch(props.APIBaseUrl + 'jobs/' + jobid, {
     method:"DELETE",
     headers: props.standardHeaders
   })
@@ -106,7 +106,7 @@ function initiateDeleteJob(){
     Orders.value.pop()
   }
 
-  sleep(5000).then(() => {deleteJobFromAPI(JobId.value)});
+  sleep(3000).then(() => {deleteJobFromAPI(JobId.value)});
   
 }
 
