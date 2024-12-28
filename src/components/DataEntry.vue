@@ -46,8 +46,8 @@ const SectionMap = ref({
   strings:{quantity: "",instrument:"",position:"",picture_num:""},
   voice:{quantity: "",instrument:"",position:"",picture_num:""}
 })
+let JobMap = new Map()
 
-console.log(props.standardHeaders)
 // on fresh page load
 if (!Jobs.value.length){
   fetchJobsFromAPI()  
@@ -59,13 +59,18 @@ if (!Instruments.value.length){
 }    
 
 async function fetchJobsFromAPI(){
-  fetch(props.APIBaseUrl+'jobs', 
+  await fetch(props.APIBaseUrl+'jobs', 
    {
     method:"GET",
     headers: props.standardHeaders
   })
     .then( response => response.json())
     .then(data=> Jobs.value = data)
+
+    //grab the job name
+    for (let i in Jobs.value){
+      JobMap.set(Jobs.value[i].id,Jobs.value[i].job_name)
+    }
 
 }
 
@@ -163,7 +168,7 @@ function fillInForm(){
     //by click NEXT RECORD
     return
   }
-  console.log(Order.value)
+
   //left side are the v-model variable names
   //right side are the api json field names
   OrderId.value=Order.value.id
@@ -302,7 +307,7 @@ async function patchOrder(json){
 
 }
 
-function UpdateOrPatchOrder(){
+function PostOrPatchOrder(){
 
   let sectionjson = {}
 
@@ -324,6 +329,7 @@ function UpdateOrPatchOrder(){
         fname: Fname.value,
         lname: Lname.value,
         job_id: JobId.value,
+        job_name: JobMap.get(JobId.value),
         record_num: Number(RecordNum.value),
         address: Address.value,
         city: City.value,
@@ -596,7 +602,7 @@ function UpdateOrPatchOrder(){
     (SectionMap.percussion.quantity || 0) +
     (SectionMap.strings.quantity || 0) +
     (SectionMap.voice.quantity || 0)"></div>
-  <div><button @click="UpdateOrPatchOrder">Update/Add</button></div>
+  <div><button @click="PostOrPatchOrder">Update/Add</button></div>
   <div></div>
 </div>
 
