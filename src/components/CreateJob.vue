@@ -27,7 +27,7 @@ async function postNewJob(){
 Job Name: <input v-model="Name"> Year: <input v-model="Year"> 
 <button @click="postNewJob">Add Job</button>
 <div class="success" v-if="Status == 200">Job saved !</div>
-<div class="error" v-else-if="Status >= 400">Job not saved! {{ ReturnedJSON }}</div>
+<div class="error" v-else-if="Status >= 400">Job not saved! {{ ReturnedJSON.message }}</div>
 
 </template>
 
