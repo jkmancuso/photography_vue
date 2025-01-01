@@ -629,7 +629,7 @@ function PostOrPatchOrder(){
     border-style: solid;
     border-width: 1px;
     border-color: black;
-    width: 300px;
+    width: 400px;
 }
 body{
     font-family: "Verdana";
