@@ -26,6 +26,8 @@ const GroupPictureNumOptions = ["B1","C1","JE1","O1","WC1","VJ1"]
 const GroupPictureNum = ref()
 const Groups = ref([])
 
+let LastNames={}
+
 const [Year,Fname,Lname,PhoneNum,Address,City,State,Zip,Amount] =[ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref(),ref()]
 const [Group,GroupQuantity,CheckNum,PaymentMethod] = [ref(),ref(),ref(),ref()]
 const PrevName = ref()
@@ -122,6 +124,10 @@ async function getOrdersFromAPI(){
     .then(data => {Orders.value=data;return Orders;})
     .then(Orders => RecordNum.value=Orders.value.length)
   
+  for (let order of Orders.value){
+    LastNames[order.lname]=order.record_num
+  }  
+  
   DisplayOrders.value=JSON.parse(JSON.stringify(Orders.value))
   getYearInfo()
   getGroupsFromAPI()
@@ -136,6 +142,12 @@ async function getOrdersFromAPI(){
 
 }
 
+function FindByLastName(lname){
+  RecordNum.value=LastNames[lname]
+  fillInForm()
+  console.log(LastNames[lname])
+  console.log(LastNames["Vollweiler"])
+}
 
 async function getGroupsFromAPI(){
   fetch(props.APIBaseUrl+'groups', {
@@ -390,7 +402,7 @@ function PostOrPatchOrder(){
     <div>First Name</div>
     <div><input type="text" v-model="Fname"></div>
     <div>Last Name</div>
-    <div><input type="text" v-model="Lname"><button>Find</button></div>
+    <div><input type="text" v-model="Lname"><button @click="FindByLastName(`${Lname}`)">Find</button></div>
     <div></div>
 
     <div>Street Address</div>
@@ -552,12 +564,12 @@ function PostOrPatchOrder(){
   Accounting Information<br><br>
   <div class="container-accounting">
     <div>Payment Method</div>
-    <div><input type="text"  size="5" maxlength="5" v-model="PaymentMethod"></div>
+    <div><input type="text"  size="5" maxlength="10" v-model="PaymentMethod"></div>
     <div>Check Num</div>
-    <div><input type="number"  min="0" max="99" v-model="CheckNum"></div>
+    <div><input type="number"  min="0" max="99999" v-model="CheckNum"></div>
 
     <div>Total Paid</div>
-    <div><input type="number"  min="0" max="99" v-model="Amount"></div>
+    <div><input type="number"  min="0" max="999" v-model="Amount"></div>
     <div></div>
     <div></div>
 
