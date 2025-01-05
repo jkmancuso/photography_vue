@@ -145,8 +145,6 @@ async function getOrdersFromAPI(){
 function FindByLastName(lname){
   RecordNum.value=LastNames[lname]
   fillInForm()
-  console.log(LastNames[lname])
-  console.log(LastNames["Vollweiler"])
 }
 
 async function getGroupsFromAPI(){
@@ -346,7 +344,7 @@ function PostOrPatchOrder(){
         address: Address.value,
         city: City.value,
         state: State.value,
-        phone_num: PhoneNum.value,
+        phone: PhoneNum.value,
         zip: Zip.value,
         group_quantity: Number(GroupQuantity.value),
         group: Group.value,
