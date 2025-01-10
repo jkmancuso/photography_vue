@@ -593,7 +593,7 @@ function PostOrPatchOrder(){
   </select>
 </div>
 <div>
-  <select v-model="SectionMap.voice.picture">
+  <select v-model="SectionMap.voice.picture_num">
     <option v-for="picture_num in voice_pictures" :value="picture_num.picture"> {{ picture_num.picture }}</option>
   </select>
 </div>
